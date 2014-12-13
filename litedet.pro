@@ -10,6 +10,5 @@ qtcAddDeployment()
 
 HEADERS += \
     includes.h \
-    filesearch.h \
-    dirstest.h
+    dirlist.h
 

@@ -163,7 +163,7 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/lex.prf \
 		../../litedet.pro includes.h \
-		filesearch.h ../main.c
+		dirlist.h ../main.c
 QMAKE_TARGET  = litedet
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = litedet
@@ -461,7 +461,7 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../main.c ../includes.h
+main.o: ../main.c ../dirlist.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c
 
 ####### Install
