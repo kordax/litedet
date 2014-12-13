@@ -1,6 +1,6 @@
-#ifndef DIRLIST
-#define DIRLIST
-#endif // DIRLIST
+#ifndef FILELIST
+#define FILELIST
+#endif // FILELIST
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,32 +10,29 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#define MAX_DIRS 50
-#define MAX_DIR_CHARS 50
-
-typedef struct __dir_node {
+typedef struct __file_node {
     struct dirent* value;
-    struct __dir_node* prev;
-    struct __dir_node* next;
-} dir_node;
+    struct __file_node* prev;
+    struct __file_node* next;
+} file_node;
 
-typedef struct __dir_list {
+typedef struct __file_list {
     size_t size;
-    dir_node* beg;
-    dir_node* end;
-} dir_list;
+    file_node* beg;
+    file_node* end;
+} file_list;
 
-dir_list* make_dirlist()
+file_list* make_dirlist()
 {
-    dir_list* tmp = (dir_list*) malloc(sizeof(dir_list));
+    file_list* tmp = (file_list*) malloc(sizeof(file_list));
     tmp->size = 0;
     tmp->end = tmp->beg = NULL;
     return tmp;
 }
 
-void dl_pushback(dir_list *dl, struct dirent* val)
+void dl_pushback(file_list *dl, struct dirent* val)
 {
-    dir_node* tmp = (dir_node*) malloc(sizeof(dir_node));
+    file_node* tmp = (file_node*) malloc(sizeof(file_node));
     tmp->value = val;
     tmp->prev = dl->end;
     if (dl->end) {
@@ -49,8 +46,8 @@ void dl_pushback(dir_list *dl, struct dirent* val)
     dl->size++;
 }
 
-void* dl_popback(dir_list *dl) {
-    dir_node *next;
+void* dl_popback(file_list *dl) {
+    file_node *next;
     char *tmp;
     if (dl->end == NULL) {
         exit(4);
@@ -71,10 +68,10 @@ void* dl_popback(dir_list *dl) {
     return tmp;
 }
 
-dir_list* get_dir_content(const char* dir_name)
+file_list* get_dir_content(const char* dir_name)
 {
     DIR* dir_ptr;
-    dir_list* dl = make_dirlist();
+    file_list* dl = make_dirlist();
     if ((dir_ptr = opendir(dir_name)) == NULL)
     {
         perror("Cannot open file");
@@ -88,4 +85,20 @@ dir_list* get_dir_content(const char* dir_name)
     }
 
     return dl;
+}
+
+file_node* dl_get(file_list* dl, size_t index) {
+
+    if (index > dl->size)
+        return NULL;
+
+    file_node* tmp = dl->beg;
+    size_t i = 0;
+
+    while (tmp && i < index) {
+        tmp = tmp->next;
+        i++;
+    }
+
+    return tmp;
 }

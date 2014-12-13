@@ -10,5 +10,5 @@ qtcAddDeployment()
 
 HEADERS += \
     includes.h \
-    dirlist.h
+    filelist.h
 

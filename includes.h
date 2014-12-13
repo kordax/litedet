@@ -9,4 +9,4 @@
 #include <regex.h>
 #include <sys/types.h>
 #include <unistd.h>
-#include "dirlist.h"
+#include "filelist.h"

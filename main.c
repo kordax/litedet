@@ -5,13 +5,18 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "dirlist.h"
+#include "filelist.h"
 #include <time.h>
 
 #define NANO_MULTIPLIER 1000000000
+#define MAX_SUBDIR_CHARS 50
+#define MAX_DIR_CHARS 128
+
 
 int main(int argc, char *argv[])
 {
+    //pid_t fokr_pid = fork();
+
     struct stat filestat_info;
     struct timespec start, stop;
     int clock_status = clock_gettime(CLOCK_REALTIME, &start);
@@ -23,27 +28,38 @@ int main(int argc, char *argv[])
 
     char dir_prefix[] = "/media/kordax/7c1bb3dc-12a8-46d6-b140-58c8a60fff94/";
     char dir_append[32];
-    char dir_name[sizeof(dir_prefix) + 34] = {0};
+    char home_dir[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
 
     scanf("%s", dir_append);
     //if(strlen(dir_append) > sizeof)
 
-    strcat(dir_name, dir_prefix);
-    strcat(dir_name, dir_append);
+    strcat(home_dir, dir_prefix);
+    strcat(home_dir, dir_append);
 
-    puts(dir_name);
+    puts(home_dir);
 
-    dir_list* dl = get_dir_content(dir_name);
+    file_list* dl = get_dir_content(home_dir);
 
-    if(lstat(dir_name, &filestat_info) < 0)
+    int cnt = 0;
+    while(cnt < dl->size)
     {
-        perror(dir_name);
-        return 1;
-    }
+        file_node* tmpdir = dl_get(dl, cnt);
+        char dir_name[sizeof(sizeof(home_dir)) + MAX_SUBDIR_CHARS] = {0};
+        strcat(dir_name, home_dir);
+        strcat(dir_name, tmpdir->value->d_name);
 
-    if (!S_ISDIR(filestat_info.st_mode))
-    {
-        puts("It is not a dir!");
+        if(lstat(dir_name, &filestat_info) < 0) // tmpdir->value->d_name монструозно))
+        {
+            perror(dir_name);
+            return 1;
+        }
+
+        if (!S_ISDIR(filestat_info.st_mode))
+        {
+            puts("It is not a dir!");
+        }
+
+        cnt++;
     }
 
     clock_status = clock_gettime(CLOCK_REALTIME, &stop);
@@ -54,4 +70,3 @@ int main(int argc, char *argv[])
     printf( "Processing time is %.3Lf seconds!\n", tt);
     return 0;
 }
-
