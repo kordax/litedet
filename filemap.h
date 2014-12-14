@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 typedef struct __file_node {
-    struct dirent* value;
+    char* value;
     struct __file_node* prev;
     struct __file_node* next;
 } file_node;
@@ -30,7 +30,7 @@ file_list* make_dirlist()
     return tmp;
 }
 
-void dl_pushback(file_list *dl, struct dirent* val)
+void dl_pushback(file_list *dl, char* val)
 {
     file_node* tmp = (file_node*) malloc(sizeof(file_node));
     tmp->value = val;
@@ -76,7 +76,7 @@ file_list* get_dir_content(const char* dir_name)
     {
         return NULL;
     }
-    struct dirent *dir_entity;
+    char *dir_entity;
 
     while (dir_entity = readdir(dir_ptr))
     {
@@ -96,9 +96,25 @@ file_node* dl_get(file_list* dl, size_t index) { // Получим следую�
 
     while (tmp && i < index) {
         tmp = tmp->next;
-        if(tmp->value->d_name[0] == '.') tmp = tmp->next;
         i++;
     }
 
     return tmp;
+}
+
+char* dl_get_by_name(file_list* dl, char* name) { // Получим следующий элемент
+
+    if (index > dl->size)
+        return NULL;
+
+    file_node* tmp = dl->beg;
+    size_t i = 0;
+
+    while (tmp && i < index) {
+        tmp = tmp->next;
+        if(strcmp(tmp->value, name) == 0) return tmp;
+        i++;
+    }
+
+    return tmp->value;
 }

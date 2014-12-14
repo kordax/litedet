@@ -9,5 +9,6 @@ include(deployment.pri)
 qtcAddDeployment()
 
 HEADERS += \
-    filelist.h
+    filemap.h \
+    scanner.h
 

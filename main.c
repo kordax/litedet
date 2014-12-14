@@ -5,19 +5,17 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include "filelist.h"
 #include <time.h>
+#include <limits.h>
+#include "scanner.h"
+#include "filemap.h"
 
 #define NANO_MULTIPLIER 1000000000
 #define MAX_SUBDIR_CHARS 50
-#define MAX_DIR_CHARS 128
-
 
 int main(int argc, char *argv[])
 {
     //pid_t fokr_pid = fork();
-
-    struct stat filestat_info;
     struct timespec start, stop;
     int clock_status = clock_gettime(CLOCK_REALTIME, &start);
     if (clock_status < 0)
@@ -27,8 +25,8 @@ int main(int argc, char *argv[])
     }
 
     char dir_prefix[] = "/media/kordax/7c1bb3dc-12a8-46d6-b140-58c8a60fff94/";
-    char dir_append[32];
-    char base_dir[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
+    char dir_append[_POSIX_PATH_MAX];
+    char base_dir[_POSIX_PATH_MAX] = {0};
 
     scanf("%s", dir_append);
     //if(strlen(dir_append) > sizeof)
@@ -38,38 +36,107 @@ int main(int argc, char *argv[])
 
     puts(base_dir);
 
-    file_list* dl = get_dir_content(base_dir);
-
-    //if ((fork()) != 0)
-    int cnt = 0;
-    int subdir_number = 0;
-
     // ======================= Рекурсивный поиск в директориях
 
-    while(dl != NULL)
+    DIR* cur_dir_ptr;
+    struct dirent* entry;
+    struct stat filestat;
+    char cur_dir[_POSIX_PATH_MAX] = {0};
+
+    strcpy(cur_dir, base_dir);
+
+    cur_dir_ptr = opendir(cur_dir);
+    if(cur_dir_ptr == NULL)
     {
-        while(cnt < dl->size)
+        perror(cur_dir_ptr);
+        return 1;
+    }
+    int cnt = 0;
+    file_list* readed_files;
+    readed_files = make_dirlist();
+    char cur_file[_POSIX_PATH_MAX] = {0};
+    char tmp_name[_POSIX_PATH_MAX] = {0};
+    while (entry) // Пока есть директории
+    {
+        entry = readdir(cur_dir_ptr);
+        strcpy(tmp_name, cur_dir);
+        strcat(tmp_name, "/");
+        strcat(tmp_name, entry->d_name);
+        puts("tmp_name is: ");
+        puts(tmp_name);
+        if (strcmp(tmp_name, dl_get_by_name(readed_files, cur_dir)) != 0)
+        if ((entry != NULL) && (entry->d_name[0] != '.')) // Если не ./ и не ../
         {
-            file_node* tmp_file = dl_get(dl, cnt);
-            char file_name[sizeof(sizeof(base_dir)) + MAX_SUBDIR_CHARS + 30] = {0};
-            strcat(file_name, base_dir);
-            strcat(file_name, "/");
-            strcat(file_name, tmp_file->value->d_name);
-
-            puts(file_name);
-
-            if(lstat(file_name, &filestat_info) == -1)
+            strcat(cur_dir, "/");
+            //strcat(cur_dir, entry->d_name); // Папка или файл на данный момент
+            if(entry->d_type == DT_REG)
             {
-                perror(file_name);
-                return 1;
+                strcpy(cur_file, cur_dir);
+                strcat(cur_file, entry->d_name);
+                scan(cur_file);
+                dl_pushback(readed_files, entry);
             }
-            if (S_ISDIR(filestat_info.st_mode))
+            if(entry->d_type == DT_DIR)
             {
-                dl = get_dir_content(file_name);
+                strcat(cur_dir, entry->d_name);
+                dl_pushback(readed_files, entry);
+                cur_dir_ptr = opendir(cur_dir);
+                puts(cur_dir);
+                cnt++;
+            }
+        }
+        if(!entry) // Если записей больше нет
+        {
+            int i = 0;
+            /*while (i < cnt)
+            {
+                strcat(cur_dir, "/.."); // Вписываем количество вложений, по которым перешли
+                i++;
+            }*/
+
+            if (lstat(cur_dir, &filestat) < 0)
+            {
+                    perror(cur_dir);
+                    return 1;
+            }
+            if(S_ISDIR(filestat.st_mode))
+            {
+                strcat(cur_dir, "../");
             }
             else
-            cnt++;
+            strcat(cur_dir, "/../");
+            char real_path[_POSIX_PATH_MAX] = {0};
+            puts("real_ptr dir is: ");
+            puts(cur_dir);
+            char* real_ptr = realpath(cur_dir, real_path);
+            puts(real_path);
+            if(real_ptr == NULL)
+            {
+                perror(real_ptr);
+                return 1;
+            }
+            cur_dir_ptr = opendir(real_path); // Возвращаемся назад на это количество вложений
+            puts("opendir real_path is: ");
+            puts(real_path);
+            if(cur_dir_ptr == NULL)
+            {
+                perror(cur_dir_ptr);
+                return 1;
+            }
+            strncpy(cur_dir, real_path, sizeof(base_dir)); // Вернулись в базу
+            puts("now we are here: ");
+            puts(cur_dir);
+
+            cnt = cnt - i;
+
+            cur_dir_ptr = opendir(cur_dir);
+            entry = readdir(cur_dir_ptr);
         }
+    }
+    if (lstat(cur_dir, &filestat) < 0)
+    {
+            perror(cur_dir);
+            return 1;
     }
 
     // ======================= Рекурсивный поиск в директориях
