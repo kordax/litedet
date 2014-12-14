@@ -162,8 +162,7 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/exceptions.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/lex.prf \
-		../../litedet.pro includes.h \
-		filelist.h ../main.c
+		../../litedet.pro filelist.h ../main.c
 QMAKE_TARGET  = litedet
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = litedet

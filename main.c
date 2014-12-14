@@ -28,39 +28,51 @@ int main(int argc, char *argv[])
 
     char dir_prefix[] = "/media/kordax/7c1bb3dc-12a8-46d6-b140-58c8a60fff94/";
     char dir_append[32];
-    char home_dir[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
+    char main_file[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
 
     scanf("%s", dir_append);
     //if(strlen(dir_append) > sizeof)
 
-    strcat(home_dir, dir_prefix);
-    strcat(home_dir, dir_append);
+    strcat(main_file, dir_prefix);
+    strcat(main_file, dir_append);
 
-    puts(home_dir);
+    puts(main_file);
 
-    file_list* dl = get_dir_content(home_dir);
+    file_list* dl = get_dir_content(main_file);
 
+    //if ((fork()) != 0)
     int cnt = 0;
-    while(cnt < dl->size)
+    int subdir_number = 0;
+
+    // ======================= Рекурсивный поиск в директориях
+
+    while(dl != NULL)
     {
-        file_node* tmpdir = dl_get(dl, cnt);
-        char dir_name[sizeof(sizeof(home_dir)) + MAX_SUBDIR_CHARS] = {0};
-        strcat(dir_name, home_dir);
-        strcat(dir_name, tmpdir->value->d_name);
-
-        if(lstat(dir_name, &filestat_info) < 0) // tmpdir->value->d_name монструозно))
+        while(cnt < dl->size)
         {
-            perror(dir_name);
-            return 1;
-        }
+            file_node* tmp_file = dl_get(dl, cnt);
+            char file_name[sizeof(sizeof(main_file)) + MAX_SUBDIR_CHARS + 30] = {0};
+            strcat(file_name, main_file);
+            strcat(file_name, "/");
+            strcat(file_name, tmp_file->value->d_name);
 
-        if (!S_ISDIR(filestat_info.st_mode))
-        {
-            puts("It is not a dir!");
-        }
+            puts(file_name);
 
-        cnt++;
+            if(lstat(file_name, &filestat_info) == -1)
+            {
+                perror(file_name);
+                return 1;
+            }
+            if (S_ISDIR(filestat_info.st_mode))
+            {
+                subdir_number++;
+                dl = get_dir_content(file_name);
+            }
+            cnt++;
+        }
     }
+
+    // ======================= Рекурсивный поиск в директориях
 
     clock_status = clock_gettime(CLOCK_REALTIME, &stop);
     long double res_sec = (stop.tv_sec - start.tv_sec) * NANO_MULTIPLIER;

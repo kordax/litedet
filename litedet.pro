@@ -9,6 +9,5 @@ include(deployment.pri)
 qtcAddDeployment()
 
 HEADERS += \
-    includes.h \
     filelist.h
 

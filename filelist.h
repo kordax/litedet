@@ -74,7 +74,6 @@ file_list* get_dir_content(const char* dir_name)
     file_list* dl = make_dirlist();
     if ((dir_ptr = opendir(dir_name)) == NULL)
     {
-        perror("Cannot open file");
         return NULL;
     }
     struct dirent *dir_entity;
@@ -87,7 +86,7 @@ file_list* get_dir_content(const char* dir_name)
     return dl;
 }
 
-file_node* dl_get(file_list* dl, size_t index) {
+file_node* dl_get(file_list* dl, size_t index) { // Получим следующий элемент
 
     if (index > dl->size)
         return NULL;
