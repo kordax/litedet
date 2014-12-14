@@ -96,6 +96,7 @@ file_node* dl_get(file_list* dl, size_t index) { // Получим следую�
 
     while (tmp && i < index) {
         tmp = tmp->next;
+        if(tmp->value->d_name[0] == '.') tmp = tmp->next;
         i++;
     }
 

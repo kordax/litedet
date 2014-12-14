@@ -28,17 +28,17 @@ int main(int argc, char *argv[])
 
     char dir_prefix[] = "/media/kordax/7c1bb3dc-12a8-46d6-b140-58c8a60fff94/";
     char dir_append[32];
-    char main_file[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
+    char base_dir[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
 
     scanf("%s", dir_append);
     //if(strlen(dir_append) > sizeof)
 
-    strcat(main_file, dir_prefix);
-    strcat(main_file, dir_append);
+    strcat(base_dir, dir_prefix);
+    strcat(base_dir, dir_append);
 
-    puts(main_file);
+    puts(base_dir);
 
-    file_list* dl = get_dir_content(main_file);
+    file_list* dl = get_dir_content(base_dir);
 
     //if ((fork()) != 0)
     int cnt = 0;
@@ -51,8 +51,8 @@ int main(int argc, char *argv[])
         while(cnt < dl->size)
         {
             file_node* tmp_file = dl_get(dl, cnt);
-            char file_name[sizeof(sizeof(main_file)) + MAX_SUBDIR_CHARS + 30] = {0};
-            strcat(file_name, main_file);
+            char file_name[sizeof(sizeof(base_dir)) + MAX_SUBDIR_CHARS + 30] = {0};
+            strcat(file_name, base_dir);
             strcat(file_name, "/");
             strcat(file_name, tmp_file->value->d_name);
 
@@ -65,9 +65,9 @@ int main(int argc, char *argv[])
             }
             if (S_ISDIR(filestat_info.st_mode))
             {
-                subdir_number++;
                 dl = get_dir_content(file_name);
             }
+            else
             cnt++;
         }
     }
