@@ -59,11 +59,13 @@ int main(int argc, char *argv[])
     while (entry) // Пока есть директории
     {
         entry = readdir(cur_dir_ptr);
+        puts(entry->d_name);
         strcpy(tmp_name, cur_dir);
         strcat(tmp_name, "/");
         strcat(tmp_name, entry->d_name);
         puts("tmp_name is: ");
         puts(tmp_name);
+        if (readed_files->beg != NULL)
         if (strcmp(tmp_name, dl_get_by_name(readed_files, cur_dir)) != 0)
         if ((entry != NULL) && (entry->d_name[0] != '.')) // Если не ./ и не ../
         {
