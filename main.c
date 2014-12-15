@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    char dir_prefix[] = "/media/kordax/7c1bb3dc-12a8-46d6-b140-58c8a60fff94/";
+    char dir_prefix[] = "/home/kordax/";
     char dir_append[32];
     char main_file[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
 
