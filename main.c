@@ -51,22 +51,24 @@ int main(int argc, char *argv[])
         perror(cur_dir_ptr);
         return 1;
     }
-    int cnt = 0;
+
     file_list* readed_files;
     readed_files = make_dirlist();
     char cur_file[_POSIX_PATH_MAX] = {0};
-    char tmp_name[_POSIX_PATH_MAX] = {0};
+
     while (entry) // Пока есть директории
     {
+        char tmp_name[_POSIX_PATH_MAX] = {0};
         entry = readdir(cur_dir_ptr);
-        puts(entry->d_name);
-        strcpy(tmp_name, cur_dir);
-        strcat(tmp_name, "/");
-        strcat(tmp_name, entry->d_name);
+        if(entry != NULL)
+        {
+            strcpy(tmp_name, cur_dir);
+            strcat(tmp_name, "/");
+            strcat(tmp_name, entry->d_name);
+        }
         puts("tmp_name is: ");
         puts(tmp_name);
-        if (readed_files->beg != NULL)
-        if (strcmp(tmp_name, dl_get_by_name(readed_files, cur_dir)) != 0)
+        if (entry->d_ino != dl_get_by_id(readed_files, entry->d_ino))
         if ((entry != NULL) && (entry->d_name[0] != '.')) // Если не ./ и не ../
         {
             strcat(cur_dir, "/");
@@ -84,12 +86,12 @@ int main(int argc, char *argv[])
                 dl_pushback(readed_files, entry);
                 cur_dir_ptr = opendir(cur_dir);
                 puts(cur_dir);
-                cnt++;
             }
         }
         if(!entry) // Если записей больше нет
         {
             int i = 0;
+            int cnt = 1;
             /*while (i < cnt)
             {
                 strcat(cur_dir, "/.."); // Вписываем количество вложений, по которым перешли
@@ -129,10 +131,17 @@ int main(int argc, char *argv[])
             puts("now we are here: ");
             puts(cur_dir);
 
-            cnt = cnt - i;
+            cnt++;
 
             cur_dir_ptr = opendir(cur_dir);
             entry = readdir(cur_dir_ptr);
+            strcpy(tmp_name, cur_dir);
+            strcat(tmp_name, "/");
+            strcat(tmp_name, entry->d_name);
+            while(entry->d_ino == dl_get_by_id(readed_files, cur_dir))
+            {
+                entry = readdir(cur_dir_ptr);
+            }
         }
     }
     if (lstat(cur_dir, &filestat) < 0)

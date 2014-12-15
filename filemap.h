@@ -11,7 +11,7 @@
 #include <unistd.h>
 
 typedef struct __file_node {
-    char* value;
+    struct dirent* value;
     struct __file_node* prev;
     struct __file_node* next;
 } file_node;
@@ -102,19 +102,21 @@ file_node* dl_get(file_list* dl, size_t index) { // Получим следую�
     return tmp;
 }
 
-char* dl_get_by_name(file_list* dl, char* name) { // Получим следующий элемент
-
-    if (index > dl->size)
-        return NULL;
+ino_t* dl_get_by_id(file_list* dl, ino_t id) { // Получим следующий элемент
 
     file_node* tmp = dl->beg;
     size_t i = 0;
 
-    while (tmp && i < index) {
+    char tmp_name[_POSIX_PATH_MAX];
+
+    while (tmp) {
+        if(tmp->value->d_ino == id)
+        {
+            return id;
+        }
         tmp = tmp->next;
-        if(strcmp(tmp->value, name) == 0) return tmp;
         i++;
     }
 
-    return tmp->value;
+    return NULL;
 }
