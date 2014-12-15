@@ -7,8 +7,11 @@
 #include <unistd.h>
 #include <time.h>
 #include <limits.h>
-#include "scanner.h"
-#include "filemap.h"
+#include "list.h"
+#include "wait.h"
+
+//#include "scanner.h"
+//#include "filemap.h"
 
 #define NANO_MULTIPLIER 1000000000
 #define MAX_SUBDIR_CHARS 50
@@ -24,7 +27,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    char dir_prefix[] = "/media/kordax/7c1bb3dc-12a8-46d6-b140-58c8a60fff94/";
+    char dir_prefix[] = "/home/kordax/";
     char dir_append[_POSIX_PATH_MAX];
     char base_dir[_POSIX_PATH_MAX] = {0};
 
@@ -40,118 +43,12 @@ int main(int argc, char *argv[])
 
     DIR* cur_dir_ptr;
     struct dirent* entry;
-    struct stat filestat;
-    char cur_dir[_POSIX_PATH_MAX] = {0};
+    char root[_POSIX_PATH_MAX] = {0};
+    strcpy(root, base_dir);
 
-    strcpy(cur_dir, base_dir);
-
-    cur_dir_ptr = opendir(cur_dir);
-    if(cur_dir_ptr == NULL)
-    {
-        perror(cur_dir_ptr);
-        return 1;
-    }
-
-    file_list* readed_files;
-    readed_files = make_dirlist();
-    char cur_file[_POSIX_PATH_MAX] = {0};
-
-    while (entry) // Пока есть директории
-    {
-        char tmp_name[_POSIX_PATH_MAX] = {0};
-        entry = readdir(cur_dir_ptr);
-        if(entry != NULL)
-        {
-            strcpy(tmp_name, cur_dir);
-            strcat(tmp_name, "/");
-            strcat(tmp_name, entry->d_name);
-        }
-        puts("tmp_name is: ");
-        puts(tmp_name);
-        if (entry->d_ino != dl_get_by_id(readed_files, entry->d_ino))
-        if ((entry != NULL) && (entry->d_name[0] != '.')) // Если не ./ и не ../
-        {
-            strcat(cur_dir, "/");
-            //strcat(cur_dir, entry->d_name); // Папка или файл на данный момент
-            if(entry->d_type == DT_REG)
-            {
-                strcpy(cur_file, cur_dir);
-                strcat(cur_file, entry->d_name);
-                scan(cur_file);
-                dl_pushback(readed_files, entry);
-            }
-            if(entry->d_type == DT_DIR)
-            {
-                strcat(cur_dir, entry->d_name);
-                dl_pushback(readed_files, entry);
-                cur_dir_ptr = opendir(cur_dir);
-                puts(cur_dir);
-            }
-        }
-        if(!entry) // Если записей больше нет
-        {
-            int i = 0;
-            int cnt = 1;
-            /*while (i < cnt)
-            {
-                strcat(cur_dir, "/.."); // Вписываем количество вложений, по которым перешли
-                i++;
-            }*/
-
-            if (lstat(cur_dir, &filestat) < 0)
-            {
-                    perror(cur_dir);
-                    return 1;
-            }
-            if(S_ISDIR(filestat.st_mode))
-            {
-                strcat(cur_dir, "../");
-            }
-            else
-            strcat(cur_dir, "/../");
-            char real_path[_POSIX_PATH_MAX] = {0};
-            puts("real_ptr dir is: ");
-            puts(cur_dir);
-            char* real_ptr = realpath(cur_dir, real_path);
-            puts(real_path);
-            if(real_ptr == NULL)
-            {
-                perror(real_ptr);
-                return 1;
-            }
-            cur_dir_ptr = opendir(real_path); // Возвращаемся назад на это количество вложений
-            puts("opendir real_path is: ");
-            puts(real_path);
-            if(cur_dir_ptr == NULL)
-            {
-                perror(cur_dir_ptr);
-                return 1;
-            }
-            strncpy(cur_dir, real_path, sizeof(base_dir)); // Вернулись в базу
-            puts("now we are here: ");
-            puts(cur_dir);
-
-            cnt++;
-
-            cur_dir_ptr = opendir(cur_dir);
-            entry = readdir(cur_dir_ptr);
-            strcpy(tmp_name, cur_dir);
-            strcat(tmp_name, "/");
-            strcat(tmp_name, entry->d_name);
-            while(entry->d_ino == dl_get_by_id(readed_files, cur_dir))
-            {
-                entry = readdir(cur_dir_ptr);
-            }
-        }
-    }
-    if (lstat(cur_dir, &filestat) < 0)
-    {
-            perror(cur_dir);
-            return 1;
-    }
+    cur_dir_ptr = opendir(root);
 
     // ======================= Рекурсивный поиск в директориях
-
     clock_status = clock_gettime(CLOCK_REALTIME, &stop);
     long double res_sec = (stop.tv_sec - start.tv_sec) * NANO_MULTIPLIER;
     long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
