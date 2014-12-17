@@ -13,11 +13,11 @@
 #include <time.h>
 #include "list.h"
 
-fslist* walk(char *cur_dir)
+fslist* walk(char *cur_dir) // Функцию буду запускать рекурсивно.
 {
     DIR* cur_dir_ptr;
     struct dirent* entry;
-    fslist list = fs_make();
+    fslist *list = fs_make();
     fsnode node;
     cur_dir_ptr = opendir(cur_dir);
     while (entry = readdir(cur_dir_ptr))
