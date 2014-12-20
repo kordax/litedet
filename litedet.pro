@@ -12,3 +12,4 @@ HEADERS += \
     list.h \
     walk.h
 
+QMAKE_CFLAGS += -std=gnu11

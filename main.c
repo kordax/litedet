@@ -1,12 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include <dirent.h> // opendir, closedir, readdir, rewinddir и Co.
-#include <regex.h>
+#include <dirent.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
-#include <limits.h>
 #include "list.h"
 #include "wait.h"
 

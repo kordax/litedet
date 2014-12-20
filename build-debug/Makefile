@@ -13,7 +13,7 @@ MAKEFILE      = Makefile
 CC            = gcc
 CXX           = g++
 DEFINES       = 
-CFLAGS        = -pipe -g -Wall -W -fPIE $(DEFINES)
+CFLAGS        = -pipe -std=gnu11 -g -Wall -W -fPIE $(DEFINES)
 CXXFLAGS      = -pipe -g -Wall -W -fPIE $(DEFINES)
 INCPATH       = -I../../../Qt/5.4/gcc_64/mkspecs/linux-g++ -I../../litedet -I.
 QMAKE         = /home/kordax/Qt/5.4/gcc_64/bin/qmake
@@ -128,6 +128,12 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit_private.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkitwidgets.pri \
@@ -266,6 +272,12 @@ Makefile: ../litedet.pro ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit_private.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkitwidgets.pri \
@@ -374,6 +386,12 @@ Makefile: ../litedet.pro ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit_private.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkitwidgets.pri:
@@ -443,7 +461,7 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../main.c 
+main.o: ../main.c ../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c
 
 ####### Install
