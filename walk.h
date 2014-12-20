@@ -17,7 +17,7 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
 {
     DIR* cur_dir_ptr;
     struct dirent* entry;
-    fsnode *node = (fsnode*) malloc(sizeof(node));
+    fsnode *node = (fsnode*) malloc(sizeof(fsnode));
     cur_dir_ptr = opendir(root);
     if(cur_dir_ptr == NULL)
     {
@@ -50,7 +50,8 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
                 node->type = "DIR";
                 //strcpy(current, root);
                 strcat(temp, "/");
-                strcpy(node->path, strcat(temp, entry->d_name));
+                strcat(temp, entry->d_name);
+                strcpy(node->path, temp);
                 fs_pushback(list, node); //Добавляем в список наш файл
                 puts(node->path);
                 walk(list, temp);
