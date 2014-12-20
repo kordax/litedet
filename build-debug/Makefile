@@ -461,7 +461,8 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../main.c ../list.h
+main.o: ../main.c ../walk.h \
+		../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c
 
 ####### Install
