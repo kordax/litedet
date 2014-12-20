@@ -5,11 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
-#include "list.h"
-#include "wait.h"
-
-//#include "scanner.h"
-//#include "filemap.h"
+#include "walk.h"
 
 #define NANO_MULTIPLIER 1000000000
 #define MAX_SUBDIR_CHARS 50
@@ -39,12 +35,11 @@ int main(int argc, char *argv[])
 
     // ======================= Рекурсивный поиск в директориях
 
-    DIR* cur_dir_ptr;
-    struct dirent* entry;
+    fslist *files_list = fs_make();
     char root[_POSIX_PATH_MAX] = {0};
     strcpy(root, base_dir);
 
-    cur_dir_ptr = opendir(root);
+    walk(files_list, root);
 
     // ======================= Рекурсивный поиск в директориях
     clock_status = clock_gettime(CLOCK_REALTIME, &stop);

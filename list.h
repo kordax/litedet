@@ -1,9 +1,10 @@
 #ifndef LIST_H
-#define LIST_H
+#define LIST_H  1
 
 #endif // LIST_H
 
 #include <string.h>
+#include <stdlib.h>
 #include <dirent.h>
 #include <limits.h>
 
@@ -29,7 +30,7 @@ typedef struct fslist {
 typedef struct fsnode {
 
     char path[_POSIX_PATH_MAX];
-    char type[3];
+    char *type;
 
     struct fsnode *next;
     struct fsnode *prev;
@@ -49,17 +50,20 @@ void fs_pushback(fslist *list, fsnode *node) // Добавляем ноду с �
     fsnode* tmp = (fsnode*) malloc(sizeof(fsnode));
     strcpy(tmp->path, node->path);
 
-    for (int i = 0; i <= sizeof(list->dirs); i++) // Если это папка или файл, добавляем путь в массив списка
+    for (unsigned int i = 0; i <= sizeof(list->dirs); i++) // Если это папка или файл, добавляем путь в массив списка
     {
-        if(node->type == "DIR")
+        if(strcmp(node->type, "DIR") == 0)
         if(list->dirs[i] == NULL)
         {
             list->dirs[i] = tmp->path;
+            break;
         }
-        if(node->type == "FILE")
+        if(strcmp(node->type, "FIL") == 0)
         if(list->files[i] == NULL)
         {
+            //list->dirs[i] = (char*) malloc(sizeof(char *[_POSIX_PATH_MAX])); // Создаём массив char'ов (т.е. строку), чтобы можно было захуярить туда чего-нибудь ;)
             list->files[i] = tmp->path;
+            break;
         }
     }
 
