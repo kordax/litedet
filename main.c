@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
     fslist *files_list = fs_make();
 
     walk(files_list, root);
+    scan(files_list);
 
     // ======================= Рекурсивный поиск в директориях
     clock_status = clock_gettime(CLOCK_REALTIME, &stop);

@@ -19,6 +19,8 @@ void arrcpy(char *dest[], char *src[])
 
 typedef struct fslist {
     size_t size;
+    size_t d_size;
+    size_t f_size;
     struct fsnode *head;
     struct fsnode *tail;
 
@@ -56,6 +58,7 @@ void fs_pushback(fslist *list, fsnode *node) // Добавляем ноду с �
         if(list->dirs[i] == NULL)
         {
             list->dirs[i] = tmp->path;
+            list->d_size++;
             break;
         }
         if(strcmp(node->type, "FIL") == 0)
@@ -63,6 +66,7 @@ void fs_pushback(fslist *list, fsnode *node) // Добавляем ноду с �
         {
             //list->dirs[i] = (char*) malloc(sizeof(char *[_POSIX_PATH_MAX])); // Создаём массив char'ов (т.е. строку), чтобы можно было захуярить туда чего-нибудь ;)
             list->files[i] = tmp->path;
+            list->f_size++;
             break;
         }
     }
