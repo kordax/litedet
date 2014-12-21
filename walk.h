@@ -29,7 +29,7 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
         if(errno == ENOENT) perror(strerror(ENOENT));
         if(errno == ENOMEM) perror(strerror(ENOMEM));
     }
-    while (entry = readdir(cur_dir_ptr))
+    while ((entry = readdir(cur_dir_ptr)) != NULL)
     {
         if(errno == EBADF) perror(strerror(EBADF));
         char temp[_POSIX_PATH_MAX] = {0};
