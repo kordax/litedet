@@ -14,8 +14,6 @@
 #include <error.h>
 #include "walk.h"
 
-
-
 void scan(fslist *list)
 {
     struct stat stats;

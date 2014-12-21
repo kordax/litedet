@@ -462,7 +462,8 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../main.c ../walk.h \
+main.o: ../main.c ../scan.h \
+		../walk.h \
 		../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c
 
