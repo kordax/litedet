@@ -11,12 +11,6 @@
 
 #define _MAX_SYSTEM_FILES 100000
 
-void arrcpy(char *dest[], char *src[])
-{
-    char *sizer;
-    memcpy(dest, src, sizeof(src) / sizeof(sizer) );
-}
-
 typedef struct fslist {
     size_t size;
     size_t d_size;

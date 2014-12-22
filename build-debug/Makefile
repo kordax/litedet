@@ -128,6 +128,12 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri \
+		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit_private.pri \
 		../../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkitwidgets.pri \
@@ -158,7 +164,8 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/lex.prf \
 		../../litedet.pro list.h \
 		walk.h \
-		scan.h ../main.c
+		scan.h \
+		hash.h ../main.c
 QMAKE_TARGET  = litedet
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = litedet
@@ -267,6 +274,12 @@ Makefile: ../litedet.pro ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri \
+		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit_private.pri \
 		../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkitwidgets.pri \
@@ -375,6 +388,12 @@ Makefile: ../litedet.pro ../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_uitools_private.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webchannel_private.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webengine_private.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginecore_private.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets.pri:
+../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webenginewidgets_private.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkit_private.pri:
 ../../../Qt/5.4/gcc_64/mkspecs/modules/qt_lib_webkitwidgets.pri:

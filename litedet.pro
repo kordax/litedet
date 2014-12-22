@@ -11,6 +11,7 @@ qtcAddDeployment()
 HEADERS += \
     list.h \
     walk.h \
-    scan.h
+    scan.h \
+    hash.h
 
 QMAKE_CFLAGS += -std=gnu11
