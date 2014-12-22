@@ -13,7 +13,7 @@ MAKEFILE      = Makefile
 CC            = gcc
 CXX           = g++
 DEFINES       = 
-CFLAGS        = -pipe -g -Wall -W -fPIE $(DEFINES)
+CFLAGS        = -pipe -std=gnu11 -g -Wall -W -fPIE $(DEFINES)
 CXXFLAGS      = -pipe -g -Wall -W -fPIE $(DEFINES)
 INCPATH       = -I../../../Qt/5.4/gcc_64/mkspecs/linux-g++ -I../../litedet -I.
 QMAKE         = /home/kordax/Qt/5.4/gcc_64/bin/qmake
@@ -156,7 +156,9 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/exceptions.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/yacc.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/lex.prf \
-		../../litedet.pro filelist.h ../main.c
+		../../litedet.pro list.h \
+		walk.h \
+		scan.h ../main.c
 QMAKE_TARGET  = litedet
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = litedet
@@ -442,7 +444,9 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../main.c ../filelist.h
+main.o: ../main.c ../scan.h \
+		../walk.h \
+		../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c
 
 ####### Install

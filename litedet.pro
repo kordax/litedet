@@ -9,5 +9,8 @@ include(deployment.pri)
 qtcAddDeployment()
 
 HEADERS += \
-    filelist.h
+    list.h \
+    walk.h \
+    scan.h
 
+QMAKE_CFLAGS += -std=gnu11
