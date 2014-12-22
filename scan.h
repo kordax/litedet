@@ -35,12 +35,14 @@ void scan(fslist *list)
         {
             perror(strerror(errno));
         }
-        char *buf = (char*) malloc(sizeof(char[stats.st_size]));
+        //char *buf = (char*) malloc(sizeof(char[stats.st_size]));
+        char buf[stats.st_size];
         if (read(fd, buf, stats.st_size) == -1)
         {
             perror(strerror(errno));
         }
         printf("Reading %s!\n", list->files[i]);
+
         puts(buf);
     }
 }
