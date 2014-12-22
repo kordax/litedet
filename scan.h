@@ -15,6 +15,14 @@
 #include <error.h>
 #include "walk.h"
 
+int scan_pat(char *string)
+{
+    for (int i = 0; i < sizeof(string) / sizeof(char); i++)
+    {
+
+    }
+}
+
 void scan(fslist *list)
 {
     struct stat stats;
@@ -43,6 +51,5 @@ void scan(fslist *list)
         }
         printf("Reading %s!\n", list->files[i]);
 
-        puts(buf);
     }
 }
