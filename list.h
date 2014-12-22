@@ -1,13 +1,12 @@
 #ifndef LIST_H
 #define LIST_H  1
 
-#endif // LIST_H
-
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <limits.h>
 
+#endif // LIST_H
 
 #define _MAX_SYSTEM_FILES 100000
 

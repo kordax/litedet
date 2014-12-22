@@ -1,8 +1,6 @@
 #ifndef WALK_H
 #define WALK_H
 
-#endif // WALK_H
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -12,6 +10,8 @@
 #include "list.h"
 #include <errno.h>
 #include <error.h>
+
+#endif // WALK_H
 
 void walk(fslist* list, char *root) // Функцию буду запускать рекурсивно.
 {

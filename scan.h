@@ -1,8 +1,6 @@
 #ifndef SCAN
 #define SCAN
 
-#endif // SCAN
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -15,6 +13,8 @@
 #include <error.h>
 #include "hash.h"
 #include "walk.h"
+
+#endif // SCAN
 
 int scan_pat(char *string)
 {

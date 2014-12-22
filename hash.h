@@ -1,11 +1,6 @@
 #ifndef HASH_H
 #define HASH_H
 
-#endif // HASH_H
-
-#define _MD5_APPEND_BITS 0x80
-#define _SIGN_MAX_SIZE 8192
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -16,6 +11,11 @@
 #include <limits.h>
 #include <errno.h>
 #include <error.h>
+
+#endif // HASH_H
+
+#define _MD5_APPEND_BITS 0x80
+#define _SIGN_MAX_SIZE 8192
 
 int gen_hash(char *input)
 {
