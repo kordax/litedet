@@ -19,7 +19,6 @@ char* get_real_path(char *user)
     strcat(home_dir, "/home/");
     strcat(home_dir, user);
     strcat(home_dir, "/");
-    // ======================= Переменные
 
     strcat(root, home_dir);
     strcat(root, append);
@@ -33,14 +32,17 @@ int main(int argc, char *argv[])
     // ======================= Переменные
     char user[_BEGET_U_MAXCHARS] = {0};
     struct timespec start, stop;
+    // ======================= Переменные
+
+    // ======================= Таймер
     int clock_status = clock_gettime(CLOCK_REALTIME, &start);
     if (clock_status < 0)
     {
         perror("Timer error");
         return 1;
     }
+    // ======================= Таймер
 
-    //scanf("%s", user);
     strcpy(user, "kordax");
     char *root = get_real_path(user);
     puts(root);

@@ -39,7 +39,6 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
             if(entry->d_type == DT_REG) // Обрабатываем файл
             {
                 node->type = "FIL";
-                //strcpy(current, root);
                 strcat(temp, "/");
                 strcpy(node->path, strcat(temp, entry->d_name));
                 fs_pushback(list, node); //Добавляем в список наш файл
@@ -48,7 +47,6 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
             if(entry->d_type == DT_DIR) // Обрабатываем директорию
             {
                 node->type = "DIR";
-                //strcpy(current, root);
                 strcat(temp, "/");
                 strcat(temp, entry->d_name);
                 strcpy(node->path, temp);
