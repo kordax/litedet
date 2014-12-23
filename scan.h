@@ -1,8 +1,6 @@
 #ifndef SCAN
 #define SCAN
 
-#endif // SCAN
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
@@ -13,14 +11,18 @@
 #include <limits.h>
 #include <errno.h>
 #include <error.h>
+#include "hash.h"
 #include "walk.h"
+
+#endif // SCAN
 
 int scan_pat(char *string)
 {
-    for (int i = 0; i < sizeof(string) / sizeof(char); i++)
+    for (unsigned int i = 0; i < sizeof(string) / sizeof(char); i++)
     {
 
     }
+    return 0;
 }
 
 void scan(fslist *list)
@@ -44,12 +46,15 @@ void scan(fslist *list)
             perror(strerror(errno));
         }
         //char *buf = (char*) malloc(sizeof(char[stats.st_size]));
-        char buf[stats.st_size];
+        char *buf = (char*) malloc(sizeof(stats.st_size));
         if (read(fd, buf, stats.st_size) == -1)
         {
             perror(strerror(errno));
         }
         printf("Reading %s!\n", list->files[i]);
-
+        if(gen_hash(buf) == -1)
+        {
+            perror("Shits! Zero size!");
+        }
     }
 }

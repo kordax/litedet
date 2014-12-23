@@ -1,21 +1,14 @@
 #ifndef LIST_H
 #define LIST_H  1
 
-#endif // LIST_H
-
 #include <string.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <limits.h>
 
+#endif // LIST_H
 
 #define _MAX_SYSTEM_FILES 100000
-
-void arrcpy(char *dest[], char *src[])
-{
-    char *sizer;
-    memcpy(dest, src, sizeof(src) / sizeof(sizer) );
-}
 
 typedef struct fslist {
     size_t size;
