@@ -17,16 +17,12 @@
 #define _MD5_APPEND_BITS 0x80
 #define _SIGN_MAX_SIZE 8192
 
-int hash_get_n(size_t size)
-{
-
-}
-
 int gen_hash(char *input)
 {
     unsigned int size = 0;
     unsigned int i = 0;
     unsigned int N = 0;
+    unsigned int length;
     while(input[i] != NULL)
     {
         i++;
@@ -34,11 +30,9 @@ int gen_hash(char *input)
     }
     if (size == 0) return -1;
 
-    while (size != 512 * N + 448)
-    {
+    N = size - 448 / 512; // L = 512*N+448
 
-        input[size + i] =
-    }
+    length = 512 * N + 448;
 
     return 0;
 }
