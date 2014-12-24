@@ -52,9 +52,6 @@ void scan(fslist *list)
             perror(strerror(errno));
         }
         printf("Reading %s!\n", list->files[i]);
-        if(gen_hash(buf) == -1)
-        {
-            perror("Shits! Zero size!");
-        }
+        md5_append(buf);
     }
 }

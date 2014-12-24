@@ -15,3 +15,7 @@ HEADERS += \
     hash.h
 
 QMAKE_CFLAGS += -std=gnu11
+
+DISTFILES += \
+    md5.txt \
+    md5header.txt
