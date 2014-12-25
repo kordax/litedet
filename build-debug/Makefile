@@ -50,7 +50,9 @@ OBJECTS_DIR   = ./
 
 SOURCES       = ../main.c 
 OBJECTS       = main.o
-DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
+DIST          = ../md5.txt \
+		../md5header.txt \
+		../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/common/shell-unix.conf \
 		../../../../Qt/5.4/gcc_64/mkspecs/common/unix.conf \
 		../../../../Qt/5.4/gcc_64/mkspecs/common/linux.conf \
@@ -464,6 +466,7 @@ compiler_clean:
 ####### Compile
 
 main.o: ../main.c ../scan.h \
+		../hash.h \
 		../walk.h \
 		../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c
