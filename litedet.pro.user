@@ -1,14 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<<<<<<< HEAD
-<!-- Written by QtCreator 3.3.0, 2014-12-25T19:34:30. -->
-=======
-<<<<<<< HEAD
-<!-- Written by QtCreator 3.3.0, 2014-12-24T23:26:44. -->
-=======
-<!-- Written by QtCreator 3.3.0, 2014-12-24T16:52:18. -->
->>>>>>> 199aeaa89b8beea9b41827cf6dc28dcc250d2163
->>>>>>> fe785734be2a0b05be69e854a2cd542bc49412fa
+<!-- Written by QtCreator 3.3.0, 2014-12-25T19:34:59. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -81,7 +73,7 @@
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">QtProjectManager.QMakeBuildStep</value>
       <value type="bool" key="QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibrary">false</value>
-      <value type="bool" key="QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto">true</value>
+      <value type="bool" key="QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto">false</value>
       <value type="QString" key="QtProjectManager.QMakeBuildStep.QMakeArguments"></value>
       <value type="bool" key="QtProjectManager.QMakeBuildStep.QMakeForced">false</value>
       <value type="bool" key="QtProjectManager.QMakeBuildStep.UseQtQuickCompiler">false</value>
