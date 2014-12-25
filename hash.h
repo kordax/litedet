@@ -30,9 +30,7 @@ int gen_hash(char *input)
     }
     if (size == 0) return -1;
 
-    N = size - 448 / 512; // L = 512*N+448
-
-    length = 512 * N + 448;
+    //N - 448 / 512
 
     return 0;
 }
