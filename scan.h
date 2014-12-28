@@ -30,7 +30,7 @@ char* sign_get()
         perror(strerror(errno));
     }
     char *buf = (char*) malloc(sizeof(stats.st_size));
-    char *ptr = buf;
+    char *ptr;
     if (read(fd, buf, stats.st_size) == -1)
     {
         perror(strerror(errno));
@@ -38,12 +38,14 @@ char* sign_get()
     char ch1, ch2, ch3, ch4;
     u_int i = 0;
     u_int line = 0;
+    size_t ptn_size = 3;
     if (stats.st_size < 4)
     {
-        perror("Impossible patter size! Size is less than 4 chars!");
+        perror("Impossible pattern size! Size is less than 4 chars!");
     }
-    while (ch3 != '0' || ch4 != (char)92)
+    while (ch4 != EOF)
     {
+        ptn_size++;
         ch1 = buf[i];
         ch2 = buf[i+1];
         ch3 = buf[i+2];
@@ -54,11 +56,13 @@ char* sign_get()
         }
         if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
         {
-            ptr -= 3;
+            ptr = (char*) malloc(ptn_size);
+            memcpy(ptr, buf, ptn_size); // Копируем найденную строку, за исключением закрывающих тегов!
+            ptr[ptn_size - 4] = '\0'; // Добавляем 0\ вконец. Конец у нас - 4, т.к. по факту имеем пробел(_) и $#>
+            //ptr[ptn_size - 3] = (char)92; // Добавляем 0\ вконец.
             break;
         }
         i++;
-        ptr++;
     }
     if (ch3 == '0' || ch4 == (char)92)
     {
@@ -73,12 +77,15 @@ char* sign_get()
 
 char* seekpat(char *buf)
 {
-    u_int len = strlen(buf);
     char *substr = sign_get();
     char *result;
 
-    if (buf[len - 1] == substr[len - 1])
+    //if (buf[len - 1] == substr[len - 1])
     result = strstr(buf, substr);
+    if (result == NULL)
+    {
+        perror("No substr found!");
+    }
 
     return result;
 }
