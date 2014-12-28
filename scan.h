@@ -17,8 +17,9 @@
 
 char* sign_get()
 {
+    char* substr;
     struct stat stats;
-    int fd = open("home/k/kordax/test/sign.txt", O_RDONLY);
+    int fd = open("home/k/kordax/sign.txt", O_RDONLY);
     if (fd < 0)
     {
         perror(strerror(errno));
@@ -28,33 +29,46 @@ char* sign_get()
         perror(strerror(errno));
     }
     char *buf = (char*) malloc(sizeof(stats.st_size));
+    char *ptr = buf;
     if (read(fd, buf, stats.st_size) == -1)
     {
         perror(strerror(errno));
     }
-    char ch1, ch2, ch3;
+    char ch1, ch2, ch3, ch4;
     u_int i = 0;
-    while (ch3 != EOF)
+    if (stats.st_size < 4)
+    {
+        perror("Impossible patter size! Size is less than 4 chars!");
+    }
+    while (ch4 != EOF)
     {
         ch1 == buf[i];
         ch2 == buf[i+1];
         ch3 == buf[i+2];
-        if (ch1 != '$' && ch2 !='#' && ch3 !='>')
+        ch4 == buf[i+3];
+        if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
         {
-
+            break;
         }
         i++;
+        ptr++;
     }
 
-    return;
+    substr = ptr;
+
+    return substr;
 }
 
-int seekpat(char *string)
+char* seekpat(char *buf)
 {
-    u_int len = strlen(string);
-    if (string[len - 1] == buf[len - 1])
-    strstr(buf, );
-    return 0;
+    u_int len = strlen(buf);
+    char *substr = sign_get();
+    char *result;
+
+    if (buf[len - 1] == substr[len - 1])
+    result = strstr(buf, substr);
+
+    return result;
 }
 
 void scan(fslist *list)
@@ -86,6 +100,10 @@ void scan(fslist *list)
         }
         printf("Reading %s!\n", list->files[i]);
 
+        char* result = seekpat(buf);
+
+        printf("I've found %s... in ", result);
+        printf("file: %s", list->files[i]);
 
     }
 }
