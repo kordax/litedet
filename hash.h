@@ -1,40 +1,18 @@
-#ifndef HASH_H
-#define HASH_H
-
-#include <stdlib.h>
 #include <stdio.h>
-#include <dirent.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/mman.h>
-#include <fcntl.h>
-#include <limits.h>
-#include <errno.h>
-#include <error.h>
+#include <unistd.h>
+#include <openssl/md5.h>
+using namespace std;
 
-#endif // HASH_H
-
-#define _APPEND_BIT 0x80
-#define _ZERO_BIT 0x00
-#define _SIGN_MAX_SIZE 8192
-
-int md5_append(char *input)
+int main()
 {
-    unsigned int size = 0;
-    unsigned int i = 0;
-    unsigned int N = 0;
-    unsigned int length;
-    while(input[i] != NULL)
-    {
-        i++;
-        size++;
-    }
-    if (size == 0) return -1;
-
-    while (size % 512 != 448 % 512)
-    {
-
-    }
-
-    return 0;
+    int i;
+    MD5_CTX md5handler;
+    unsigned char md5digest[MD5_DIGEST_LENGHT];
+    char recvbuff[4]={1,2,0,20};
+    MD5_Init(&md5handler);
+    MD5_Update(&md5handler,(const char*)recvbuff[0],1);
+    MD5_Final(md5digest,&md5handler);
+    for(i=0;i<MD5_DIGEST_LENGTH;i++)
+       printf("%02x",md5gigest[i]);
+    printf("/n");
 }

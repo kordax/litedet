@@ -1,3 +1,8 @@
+#ifndef MD5MAIN_H
+#define MD5MAIN_H
+
+#endif // MD5MAIN_H
+
 #include "md5.h"
 
 BYTE  m_lpszBuffer[64];
