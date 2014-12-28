@@ -64,7 +64,7 @@ char* sign_get()
         }
         i++;
     }
-    if (ch3 == '0' || ch4 == (char)92)
+    if (ch4 == EOF)
     {
         printf("Missing $#> tag on %d line \n", line);
         perror("Cannot proceed! Fatal error!");
