@@ -15,6 +15,29 @@
 
 #endif // SCAN
 
+char* getcharline(const char* buf)
+{
+    static u_int mark = 0;
+    if(buf[mark] == EOF)
+    {
+        return NULL;
+    }
+    size_t size = 0;
+    while (buf[mark] != '\n') // Найдём размер буфера
+    {
+        size++;
+    }
+
+    char *line = (char*) malloc(size);
+    while (buf[mark] != '\n') // Скопируем данные и установим маркер
+    {
+        line[mark] = buf[mark];
+        mark++;
+    }
+
+    return line;
+}
+
 char* sign_get()
 {
     char *substr;
@@ -75,13 +98,20 @@ char* sign_get()
     return substr;
 }
 
-char* seekpat(char *buf)
+char* seekpat(const char *buf, const char *file)
 {
     char *substr = sign_get();
     char *result;
 
+    char *line;
+
     //if (buf[len - 1] == substr[len - 1])
-    result = strstr(buf, substr);
+    while((line = getcharline(buf)) != NULL)
+    {
+        result = strstr(buf, substr);
+        printf("Found substring %s3", result);
+        printf("in file %s", file);
+    }
     if (result == NULL)
     {
         perror("No substr found!");
@@ -119,7 +149,7 @@ void scan(fslist *list)
         }
         printf("Reading %s!\n", list->files[i]);
 
-        char* result = seekpat(buf);
+        char* result = seekpat(buf, list->files[i]);
 
         printf("I've found %s... in ", result);
         printf("file: %s", list->files[i]);
