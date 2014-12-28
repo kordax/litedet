@@ -37,22 +37,33 @@ char* sign_get()
     }
     char ch1, ch2, ch3, ch4;
     u_int i = 0;
+    u_int line = 0;
     if (stats.st_size < 4)
     {
         perror("Impossible patter size! Size is less than 4 chars!");
     }
-    while (ch4 != EOF)
+    while (ch3 != '0' || ch4 != (char)92)
     {
         ch1 = buf[i];
         ch2 = buf[i+1];
         ch3 = buf[i+2];
         ch4 = buf[i+3];
+        if (ch1 == (char)92 && ch2 == 'n')
+        {
+            line++; // Идентифицируем строку
+        }
         if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
         {
+            ptr -= 3;
             break;
         }
         i++;
         ptr++;
+    }
+    if (ch3 == '0' || ch4 == (char)92)
+    {
+        printf("Missing $#> tag on %d line \n", line);
+        perror("Cannot proceed! Fatal error!");
     }
 
     substr = ptr;
