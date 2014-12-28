@@ -17,9 +17,10 @@
 
 char* sign_get()
 {
-    char* substr;
+    char *substr;
     struct stat stats;
-    int fd = open("home/k/kordax/sign.txt", O_RDONLY);
+    char *sigfile = "/home/kordax/sign.txt";
+    int fd = open(sigfile, O_RDONLY);
     if (fd < 0)
     {
         perror(strerror(errno));
@@ -42,10 +43,10 @@ char* sign_get()
     }
     while (ch4 != EOF)
     {
-        ch1 == buf[i];
-        ch2 == buf[i+1];
-        ch3 == buf[i+2];
-        ch4 == buf[i+3];
+        ch1 = buf[i];
+        ch2 = buf[i+1];
+        ch3 = buf[i+2];
+        ch4 = buf[i+3];
         if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
         {
             break;
@@ -93,7 +94,7 @@ void scan(fslist *list)
             perror(strerror(errno));
         }
         //char *buf = (char*) malloc(sizeof(char[stats.st_size]));
-        char *buf = (char*) malloc(sizeof(stats.st_size));
+        char *buf = (char*) malloc(sizeof(char[stats.st_size]));
         if (read(fd, buf, stats.st_size) == -1)
         {
             perror(strerror(errno));
