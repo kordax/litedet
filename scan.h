@@ -50,7 +50,7 @@ char* sign_get()
         ch2 = buf[i+1];
         ch3 = buf[i+2];
         ch4 = buf[i+3];
-        if (ch1 == (char)92 && ch2 == 'n')
+        if (ch1 == '\n')
         {
             line++; // Идентифицируем строку
         }
