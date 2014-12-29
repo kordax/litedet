@@ -22,7 +22,7 @@ char* getcharline(const char* buf)
     u_int i = 0;
     u_int cnt = 0;
 
-    if(buf[mark])
+    if(mark > sizeof(buf))
     {
         return NULL;
     }
@@ -169,7 +169,7 @@ void scan(fslist *list)
             perror(strerror(errno));
         }
         //char *buf = (char*) malloc(sizeof(char[stats.st_size]));
-        char *buf = (char*) malloc(sizeof(char[stats.st_size + 1]));
+        char *buf = (char*) malloc(sizeof(char[stats.st_size]));
         if (read(fd, buf, stats.st_size) == -1)
         {
             perror(strerror(errno));
