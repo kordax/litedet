@@ -15,25 +15,43 @@
 
 #endif // SCAN
 
+static u_int mark = 0;
+
 char* getcharline(const char* buf)
 {
-    static u_int mark = 0;
+    u_int i = 0;
+    u_int cnt = 0;
+
     if(buf[mark] == EOF)
     {
         return NULL;
     }
+
+    if(buf[mark] == '\n')
+    {
+        mark++;
+    }
     size_t size = 0;
     while (buf[mark] != '\n') // Найдём размер буфера
     {
+        printf("buf[%d] ", mark);
+        printf("= %c \n", buf[mark]);
         size++;
+        mark++;
+        cnt++;
     }
+
+    mark -= cnt;
 
     char *line = (char*) malloc(size);
     while (buf[mark] != '\n') // Скопируем данные и установим маркер
     {
-        line[mark] = buf[mark];
+        line[i] = buf[mark];
+        i++;
         mark++;
     }
+
+    line[mark] = '\0';
 
     return line;
 }
@@ -101,16 +119,25 @@ char* sign_get()
 char* seekpat(const char *buf, const char *file)
 {
     char *substr = sign_get();
-    char *result;
+    char *result, *line;
 
-    char *line;
+    u_int linenmb = 0;
 
     //if (buf[len - 1] == substr[len - 1])
     while((line = getcharline(buf)) != NULL)
     {
-        result = strstr(buf, substr);
-        printf("Found substring %s3", result);
-        printf("in file %s", file);
+        linenmb++;
+        result = strstr(line, substr);
+        if(result != NULL)
+        {
+            printf("Found substring %s3 ", result);
+            printf("on line #");
+            printf("%d", linenmb);
+            printf("(");
+            printf("%d", mark);
+            printf(")");
+            printf("in file %s", file);
+        }
     }
     if (result == NULL)
     {
