@@ -15,6 +15,8 @@
 
 #endif // SCAN
 
+#define _MAX_SIGNATURE_SIZE 16384
+
 static u_int mark = 0;
 
 char* getcharline(const char* buf)
