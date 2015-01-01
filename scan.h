@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -95,7 +96,7 @@ char* seekpat(char *file)
         {
             for (unsigned int i = 0; i < strlen(sign); i++)
                 substr[i] = 'B';
-            return file;
+            return substr;
         }
     }
     return NULL;
@@ -117,28 +118,45 @@ void scan(fslist *list)
         {
             perror(strerror(errno));
         }
-        char *fileptr = (char *) malloc(sizeof(char[stats.st_size]));
-        if (read(fd, fileptr, stats.st_size) == -1)
+        /*char *fileptr = (char*) malloc(sizeof(char[stats.st_size]));
+        if (read(fd, fileptr, stats.st_size) == -1 )
         {
             perror(strerror(errno));
         }
-        char buf[stats.st_size];
+        char *buf = (char*) malloc(stats.st_size);*/
+
+        char *fileptr = mmap(0, stats.st_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+        if (fileptr == MAP_FAILED)
+        {
+            perror(strerror(errno));
+        }
+
         printf("Reading %s!\n", list->files[i]);
+        fflush(stdout);
 
         char *result = seekpat(fileptr);
 
+        if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
+        {
+            perror(strerror(errno));
+        }
+
         if (result != NULL)
         {
-            strcpy(buf, fileptr);
-            printf("I've found %.10s3... \n", result);
-            printf("in file: %s", list->files[i]);
+            //strcpy(buf, fileptr);
+            printf("Found signature in file: %s", list->files[i]);
             fflush(stdout);
 
-            ftruncate(fd, 0);
+            /*ftruncate(fd, 0);
             if (write(fd, buf, stats.st_size) == -1)
             {
                 perror(strerror(errno));
-            }
+            }*/
+        }
+
+        if (munmap(fileptr, stats.st_size) == -1)
+        {
+            perror(strerror(errno));
         }
         if (close(fd) == -1)
         {
