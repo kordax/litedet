@@ -118,13 +118,6 @@ void scan(fslist *list)
         {
             perror(strerror(errno));
         }
-        /*char *fileptr = (char*) malloc(sizeof(char[stats.st_size]));
-        if (read(fd, fileptr, stats.st_size) == -1 )
-        {
-            perror(strerror(errno));
-        }
-        char *buf = (char*) malloc(stats.st_size);*/
-
         if(stats.st_size > 0)
         {
             char *fileptr = mmap(0, stats.st_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
@@ -146,15 +139,8 @@ void scan(fslist *list)
 
             if (result != NULL)
             {
-                //strcpy(buf, fileptr);
-                printf("Found signature in file: %s", list->files[i]);
+                printf("Found virus signature in file: %s!", list->files[i]);
                 fflush(stdout);
-
-                /*ftruncate(fd, 0);
-                if (write(fd, buf, stats.st_size) == -1)
-                {
-                    perror(strerror(errno));
-                }*/
             }
 
             if (munmap(fileptr, stats.st_size) == -1)

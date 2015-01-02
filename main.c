@@ -8,7 +8,25 @@
 #include "scan.h"
 
 #define _NANO_MULTIPLIER 1000000000
-#define _BEGET_U_MAXCHARS 10
+#define _BEGET_U_MAXCHARS 6
+
+static unsigned int options = 0;
+static const unsigned int opt_passive = 1;
+static const unsigned int opt_scanlog = 2;
+static const unsigned int opt_monothr = 4;
+
+static char *mess_usage =
+"Использование: \n\
+litedet [ИМЯ ПОЛЬЗОВАТЕЛЯ]... [КЛЮЧ]...\n\
+Например: \n\
+litedet [beelin7h] -p\n";
+
+static char *mess_arg_wrong =
+"Аргументы представлены в неверном формате!\n\
+Все аргументы регистрозависимы!\n";
+
+static char *mess_arg_toomany =
+"Слишком много аргументов!\n";
 
 char* get_real_path(char *user)
 {
@@ -28,9 +46,33 @@ char* get_real_path(char *user)
 
 int main(int argc, char *argv[])
 {
+    // ======================= Обработка аргументов
+    if(argc == 0)
+    {
+        printf(mess_usage);
+    }
+    if(argc > 2)
+    {
+        printf(mess_arg_toomany);
+    }
+    char ch;
+    ch = argv[2][1];
+    if(ch != '-')
+    {
+        printf(mess_arg_wrong);
+        printf(mess_usage);
+        return -1;
+    }
+    ch = argv[2][2];
+    switch(ch)
+    {
+        case 'p':
+            options |= opt_passive;
+    }
+    // ======================= Обработка аргументов
 
     // ======================= Переменные
-    char user[_BEGET_U_MAXCHARS] = {0};
+    char *user = argv[1];
     struct timespec start, stop;
     // ======================= Переменные
 
