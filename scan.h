@@ -114,7 +114,7 @@ void scan(fslist *list)
         }
         if(stats.st_size > 0)
         {
-            char *fileptr = mmap(0, stats.st_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            char *fileptr = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
             if (fileptr == MAP_FAILED)
             {

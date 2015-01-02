@@ -9,18 +9,28 @@
 #define _MAX_SIGNATURE_SIZE 16384
 #define _NANO_MULTIPLIER 1000000000
 #define _BEGET_U_MAXCHARS 6
-#define _MAX_ARGUMENTS 8 // Количество аргументов включая сокращённые.
+#define _MAX_ARGUMENTS 4 // Количество аргументов включая сокращённые.
 
 /*
  * OPTION LIST:
 */
 
-char *arg_list[8] =
+enum arguments {help, passive, log, extlog};
+
+char *arg_longarg_list[_MAX_ARGUMENTS] =
 {
-"h", "help",
-"p", "passive",
-"l", "log",
-"L", "extlog"
+"--help",       // 0
+"--passive",    // 1
+"--log",        // 2
+"--extlog"      // 3
+};
+
+char *arg_shortarg_list[_MAX_ARGUMENTS] =
+{
+"-h",
+"-p",
+"-l",
+"-L"
 };
 
 static char *mess_arg_list =
@@ -37,8 +47,9 @@ static char *mess_arg_list =
 
 static unsigned int opt_bites = 0;
 static const unsigned int opt_passive = 1;
-static const unsigned int opt_scanlog = 2;
-static const unsigned int opt_monothr = 4;
+static const unsigned int opt_log = 2;
+static const unsigned int opt_extlog = 4;
+static const unsigned int opt_monothr = 8;
 
 /*
  * SYSTEM MESSAGES INCLUDING ERRORS:
@@ -53,8 +64,8 @@ litedet [beelin7h] -p\n";
 
 static char *mess_arg_wrong =
 "\
-Аргументы представлены в неверном формате!\n\
-Аргумента %s нет\n\
+Неверный аргумент %s!\n\
+Аргумент с таким именем недоступен.\n\
 Внимание: Все аргументы регистрозависимы.\n";
 
 static char *mess_arg_toomany =
@@ -73,5 +84,7 @@ static char *mess_arg_maybe =
 
 static unsigned int mrk = 0;
 static char *sec_arg;
+bool arg_is_long = false;
+bool arg_is_valid = false;
 
 #endif // OPTIONS_H
