@@ -86,10 +86,14 @@ char* seekpat(char *file)
     while((sign = sign_get()) != NULL)
     {
         substr = strstr(file, sign);
-        if (substr != NULL && opt_bites ^ opt_passive) // Проверка на наличие пассивного режима
+        if (substr != NULL)
         {
-            for (unsigned int i = 0; i < strlen(sign); i++)
-                substr[i] = 'B';
+            if (opt_bites ^ opt_passive)
+            {
+                printf("Processing file %s\n", file);
+                for (unsigned int i = 0; i < strlen(sign); i++)
+                    substr[i] = 'B';
+            }
             return substr;
         }
     }
@@ -133,8 +137,11 @@ void scan(fslist *list)
 
             if (result != NULL)
             {
-                printf("Found virus signature in file: %s!", list->files[i]);
-                fflush(stdout);
+                if(opt_bites ^ opt_log)
+                {
+                    printf("Signature found in file: %s\n", list->files[i]);
+                    fflush(stdout);
+                }
             }
 
             if (munmap(fileptr, stats.st_size) == -1)

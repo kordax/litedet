@@ -18,9 +18,9 @@ void handle_arg(char *argstr)
             if(strcmp(argstr, arg_longarg_list[log]) == 0)          {   opt_bites |= opt_log;       break;  } // Установка бита логирования
             if(strcmp(argstr, arg_longarg_list[extlog]) == 0)       {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
         default:
-            if(strcmp(argstr, arg_shortarg_list[passive]) == 0)      {   opt_bites |= opt_passive;   break;  } // Установка бита пассивного режима
-            if(strcmp(argstr, arg_shortarg_list[log]) == 0)          {   opt_bites |= opt_log;       break;  } // Установка бита логирования
-            if(strcmp(argstr, arg_shortarg_list[extlog]) == 0)       {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
+            if(strcmp(argstr, arg_shortarg_list[passive]) == 0)     {   opt_bites |= opt_passive;   break;  } // Установка бита пассивного режима
+            if(strcmp(argstr, arg_shortarg_list[log]) == 0)         {   opt_bites |= opt_log;       break;  } // Установка бита логирования
+            if(strcmp(argstr, arg_shortarg_list[extlog]) == 0)      {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
     }
 }
 
@@ -54,41 +54,28 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    int n = 1;
-    for (int i = 0; i < _MAX_ARGUMENTS && n <= 2; i++)
-    {
-        sec_arg = strstr(argv[n], arg_longarg_list[i]);
-        sec_arg = strstr(argv[n], arg_shortarg_list[i]);
-        if(sec_arg != NULL)
+    for (int n = 1; n < argc; n++)
+        for (int i = 0; i < _MAX_ARGUMENTS; i++)
         {
-            if(strcmp(sec_arg, arg_shortarg_list[i]) == 0)
+            sec_arg = strstr(argv[n], arg_longarg_list[i]);
+            sec_arg = strstr(argv[n], arg_shortarg_list[i]);
+            if(sec_arg != NULL)
             {
-                arg_is_valid = true;
-                sec_arg = arg_shortarg_list[i];
-                break;
-            }
-            if(strcmp(sec_arg, arg_longarg_list[i]) == 0)
-            {
-                arg_is_long = true;
-                arg_is_valid = true;
-                sec_arg = arg_longarg_list[i];
-                break;
+                if(strcmp(sec_arg, arg_shortarg_list[i]) == 0)
+                {
+                    arg_is_valid = true;
+                    sec_arg = arg_shortarg_list[i];
+                    break;
+                }
+                if(strcmp(sec_arg, arg_longarg_list[i]) == 0)
+                {
+                    arg_is_long = true;
+                    arg_is_valid = true;
+                    sec_arg = arg_longarg_list[i];
+                    break;
+                }
             }
         }
-        n++;
-    }
-    if (sec_arg == NULL)
-    {
-        if(argc == 2)
-        {
-            printf(mess_arg_wrong, argv[1]);
-            return -1;
-        }
-        if(argc == 3)
-        printf(mess_arg_wrong, argv[2]);
-        printf(mess_usage);
-        return -1;
-    }
     if(arg_is_valid) // Обработаем правильно введённые аргументы
     {
         handle_arg(sec_arg);
@@ -102,21 +89,20 @@ int main(int argc, char *argv[])
              printf(mess_arg_list);
              return 0;
             }
-            if(argc == 2)
+            if(argc == 3)
             {
-                if(argv[1][0] == '-' && arg_is_long)
+                if(argv[2][0] == '-' && arg_is_long)
                 {
                     printf(mess_arg_maybe, sec_arg);
                     printf(mess_usage);
                     return -1;
                 }
-            }
-            if(argc == 3)
-            if(argv[2][0] != '-')
-            {
-                printf(mess_arg_maybe, sec_arg);
-                printf(mess_usage);
-                return -1;
+                if(argv[2][0] != '-')
+                {
+                    printf(mess_arg_maybe, sec_arg);
+                    printf(mess_usage);
+                    return -1;
+                }
             }
         }
 
