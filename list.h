@@ -6,10 +6,6 @@
 #include <dirent.h>
 #include <limits.h>
 
-#endif // LIST_H
-
-#define _MAX_SYSTEM_FILES 100000
-
 typedef struct fslist {
     size_t size;
     size_t d_size;
@@ -74,3 +70,4 @@ void fs_pushback(fslist *list, fsnode *node) // Добавляем ноду с �
     }
     list->size++;
 }
+#endif // LIST_H

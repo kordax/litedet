@@ -14,12 +14,6 @@
 #include <error.h>
 #include "walk.h"
 
-#endif // SCAN
-
-#define _MAX_SIGNATURE_SIZE 16384
-
-static unsigned int mrk = 0;
-
 char* sign_get()
 {
     char *substr;
@@ -92,7 +86,7 @@ char* seekpat(char *file)
     while((sign = sign_get()) != NULL)
     {
         substr = strstr(file, sign);
-        if (substr != NULL)
+        if (substr != NULL && opt_bites ^ opt_passive) // Проверка на наличие пассивного режима
         {
             for (unsigned int i = 0; i < strlen(sign); i++)
                 substr[i] = 'B';
@@ -154,3 +148,4 @@ void scan(fslist *list)
         }
     }
 }
+#endif // SCAN

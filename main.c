@@ -5,28 +5,8 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+#include "const.h"
 #include "scan.h"
-
-#define _NANO_MULTIPLIER 1000000000
-#define _BEGET_U_MAXCHARS 6
-
-static unsigned int options = 0;
-static const unsigned int opt_passive = 1;
-static const unsigned int opt_scanlog = 2;
-static const unsigned int opt_monothr = 4;
-
-static char *mess_usage =
-"Использование: \n\
-litedet [ИМЯ ПОЛЬЗОВАТЕЛЯ]... [КЛЮЧ]...\n\
-Например: \n\
-litedet [beelin7h] -p\n";
-
-static char *mess_arg_wrong =
-"Аргументы представлены в неверном формате!\n\
-Все аргументы регистрозависимы!\n";
-
-static char *mess_arg_toomany =
-"Слишком много аргументов!\n";
 
 char* get_real_path(char *user)
 {
@@ -47,27 +27,32 @@ char* get_real_path(char *user)
 int main(int argc, char *argv[])
 {
     // ======================= Обработка аргументов
-    if(argc == 0)
+    if(argc == 1)
     {
-        printf(mess_usage);
-    }
-    if(argc > 2)
-    {
-        printf(mess_arg_toomany);
-    }
-    char ch;
-    ch = argv[2][1];
-    if(ch != '-')
-    {
-        printf(mess_arg_wrong);
         printf(mess_usage);
         return -1;
     }
-    ch = argv[2][2];
-    switch(ch)
+    if(argc > 3)
     {
-        case 'p':
-            options |= opt_passive;
+        printf(mess_arg_toomany);
+        return -1;
+    }
+    if(argc > 2)
+    {
+        char ch;
+        ch = argv[2][0];
+        if(ch != '-')
+        {
+            printf(mess_arg_wrong);
+            printf(mess_usage);
+            return -1;
+        }
+        ch = argv[2][1];
+        switch(ch)
+        {
+            case 'p':
+                opt_bites |= opt_passive;
+        }
     }
     // ======================= Обработка аргументов
 
@@ -85,7 +70,6 @@ int main(int argc, char *argv[])
     }
     // ======================= Таймер
 
-    strcpy(user, "kordax");
     char *root = get_real_path(user);
     puts(root);
 

@@ -11,8 +11,6 @@
 #include <errno.h>
 #include <error.h>
 
-#endif // WALK_H
-
 void walk(fslist* list, char *root) // Функцию буду запускать рекурсивно.
 {
     DIR* cur_dir_ptr;
@@ -60,3 +58,4 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
     closedir(cur_dir_ptr);
     return;
 }
+#endif // WALK_H
