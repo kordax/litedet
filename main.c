@@ -37,22 +37,33 @@ int main(int argc, char *argv[])
         printf(mess_arg_toomany);
         return -1;
     }
-    if(argc > 2)
+    int n = 1;
+    for (int i = 0; i < _MAX_ARGUMENTS && n < 2; i++)
     {
-        char ch;
-        ch = argv[2][0];
-        if(ch != '-')
+        sec_arg = strstr(argv[n], arg_list[i]);
+        if(sec_arg != NULL) break;
+        n++;
+    }
+    if(argc == 2)
+    {
+        if(argv[1][0] != '-' || argv[1][1] != '-')
         {
-            printf(mess_arg_wrong);
+            printf(mess_arg_maybe, sec_arg);
             printf(mess_usage);
             return -1;
         }
-        ch = argv[2][1];
-        switch(ch)
-        {
-            case 'p':
-                opt_bites |= opt_passive;
-        }
+    }
+    if (strcmp(sec_arg, "help") == 0)
+    {
+        printf(mess_usage);
+        printf(mess_arg_list);
+        return 0;
+    }
+    if(argv[2][0] != '-' || argv[2][1] != '-')
+    {
+        printf(mess_arg_maybe, sec_arg);
+        printf(mess_usage);
+        return -1;
     }
     // ======================= Обработка аргументов
 
