@@ -43,7 +43,7 @@ char* get_real_path(char *user)
 int main(int argc, char *argv[])
 {
     // ======================= Обработка аргументов
-    if(argc == 1)
+    if(argc <= 1)
     {
         printf(mess_usage);
         return -1;
@@ -53,58 +53,55 @@ int main(int argc, char *argv[])
         printf(mess_arg_toomany);
         return -1;
     }
-
-    for (int n = 1; n < argc; n++)
-        for (int i = 0; i < _MAX_ARGUMENTS; i++)
+    if(argc == 3)
+    {
+        if(argv[2][0] != '-')
         {
-            sec_arg = strstr(argv[n], arg_longarg_list[i]);
-            sec_arg = strstr(argv[n], arg_shortarg_list[i]);
-            if(sec_arg != NULL)
+            printf(mess_arg_maybe, argv[2]);
+            printf(mess_usage);
+            return -1;
+        }
+    }
+
+    for (int i = 0; i < _MAX_ARGUMENTS; i++)
+    {
+        if (sec_arg == NULL) sec_arg = strstr(argv[argc - 1], arg_longarg_list[i]);
+        if (sec_arg == NULL) sec_arg = strstr(argv[argc - 1], arg_shortarg_list[i]);
+        if(sec_arg != NULL)
+        {
+            if(strcmp(sec_arg, arg_shortarg_list[i]) == 0)
             {
-                if(strcmp(sec_arg, arg_shortarg_list[i]) == 0)
-                {
-                    arg_is_valid = true;
-                    sec_arg = arg_shortarg_list[i];
-                    break;
-                }
-                if(strcmp(sec_arg, arg_longarg_list[i]) == 0)
-                {
-                    arg_is_long = true;
-                    arg_is_valid = true;
-                    sec_arg = arg_longarg_list[i];
-                    break;
-                }
+                arg_is_valid = true;
+                sec_arg = arg_shortarg_list[i];
+                break;
+            }
+            if(strcmp(sec_arg, arg_longarg_list[i]) == 0)
+            {
+                arg_is_long = true;
+                arg_is_valid = true;
+                sec_arg = arg_longarg_list[i];
+                break;
             }
         }
+    }
+
     if(arg_is_valid) // Обработаем правильно введённые аргументы
     {
         handle_arg(sec_arg);
     }
-    else
-    if(argc > 1)
-        {
-          if (strcmp(argv[1], "--help") == 0 || strcmp(argv[1], "-h") == 0)
-          {
-             printf(mess_usage);
-             printf(mess_arg_list);
-             return 0;
-            }
-            if(argc == 3)
-            {
-                if(argv[2][0] == '-' && arg_is_long)
-                {
-                    printf(mess_arg_maybe, sec_arg);
-                    printf(mess_usage);
-                    return -1;
-                }
-                if(argv[2][0] != '-')
-                {
-                    printf(mess_arg_maybe, sec_arg);
-                    printf(mess_usage);
-                    return -1;
-                }
-            }
-        }
+    if (strcmp(argv[argc - 1], "--help") == 0 || strcmp(argv[argc - 1], "-h") == 0)
+    {
+        printf(mess_usage);
+        printf(mess_arg_list);
+        return 0;
+    }
+    if (argc == 3)
+    if (sec_arg == NULL)
+    {
+        printf(mess_arg_wrong, argv[argc - 1]);
+        printf(mess_usage);
+        return -1;
+    }
 
     // ======================= Обработка аргументов
 
