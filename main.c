@@ -70,8 +70,33 @@ int main(int argc, char *argv[])
     }
     // ======================= Таймер
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+    char dir_prefix[] = "/home/kordax/";
+    char dir_append[32];
+    char main_file[sizeof(dir_prefix) + sizeof(dir_append)] = {0};
+
+    scanf("%s", dir_append);
+    //if(strlen(dir_append) > sizeof)
+
+    strcat(main_file, dir_prefix);
+    strcat(main_file, dir_append);
+
+    puts(main_file);
+
+    file_list* dl = get_dir_content(main_file);
+
+    //if ((fork()) != 0)
+    int cnt = 0;
+    int subdir_number = 0;
+=======
+    //scanf("%s", user);
+    strcpy(user, "kordax");
+>>>>>>> 266e8d11499363f1f82c7db8a09f8dc4bf4192a2
     char *root = get_real_path(user);
     puts(root);
+>>>>>>> 4a45061c06b7e2a7455a5e31cf39e9757aa96f4b
 
     // ======================= Рекурсивный поиск в директориях
 
