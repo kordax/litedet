@@ -5,51 +5,55 @@
  * DEFINES:
 */
 
-#define _MAX_SYSTEM_FILES 10000
-#define _MAX_SIGNATURE_SIZE 16384
-#define _NANO_MULTIPLIER 1000000000
-#define _BEGET_U_MAXCHARS 6
-#define _MAX_ARGUMENTS 4 // Количество аргументов включая сокращённые.
+#define _LITE_MAX_FILES 10000
+#define _LITE_MAX_SIGNSIZE 16384
+#define _LITE_TIMERNANOMTPL 1000000000
+#define _LITE_MAX_UNAMESIZE 6
+#define _LITE_OPTIONS 5 // Количество аргументов включая сокращённые.
 
 /*
  * OPTION LIST:
 */
 
-enum arguments {help, passive, log, extlog};
+enum arguments {help, active, log, extlog, debug};
 
-char *arg_longarg_list[_MAX_ARGUMENTS] =
+char *arg_longarg_list[_LITE_OPTIONS] =
 {
 "--help",       // 0
-"--passive",    // 1
+"--active",    // 1
 "--log",        // 2
-"--extlog"      // 3
+"--extlog",     // 3
+"--debug"       // 4
 };
 
-char *arg_shortarg_list[_MAX_ARGUMENTS] =
+char *arg_shortarg_list[_LITE_OPTIONS] =
 {
 "-h",
-"-p",
+"-a",
 "-l",
-"-L"
+"-L",
+"-d"
 };
 
 static char *mess_arg_list =
 "\n\
--p --passive        Пассивный режим. В данном режиме происходит только проверка, без удаления.\n\
--m --mono           Режим монозадачности. В данном режиме не происходит многопоточной обработки.\n\
--l --log            Режим логирования. В данном режиме логируется список обработанных файлов.\n\
--L --extlog         Режим расширенного логирования. В данном режиме логируются все действия программы.\n\
-\n";
+Аргументы, обязательные для длинных ключей, обязательны и для коротких.\n\
+    -a --active         Активный режим. В данном режиме происходит проверка с удалением.\n\
+    -m --mono           Режим монозадачности. В данном режиме не происходит многопоточной обработки.\n\
+    -l --log            Режим логирования. В данном режиме логируется список обработанных файлов.\n\
+    -L --extlog         Режим расширенного логирования. В данном режиме логируются все действия программы.\n\
+    -d --debug          Режим отладки. В данном режиме выводится вся дополнительная информация.\n";
 
 /*
- * OPTIONS:
+ * OPTION BITES:
 */
 
 static unsigned int opt_bites = 0;
-static const unsigned int opt_passive = 1;
+static const unsigned int opt_active = 1;
 static const unsigned int opt_log = 2;
 static const unsigned int opt_extlog = 4;
 static const unsigned int opt_monothr = 8;
+static const unsigned int opt_debug = 16;
 
 /*
  * SYSTEM MESSAGES INCLUDING ERRORS:
@@ -57,10 +61,9 @@ static const unsigned int opt_monothr = 8;
 
 static char *mess_usage =
 "\
-Использование: \n\
-litedet [ИМЯ ПОЛЬЗОВАТЕЛЯ]... [КЛЮЧ]...\n\
-Например: \n\
-litedet [beelin7h] -p\n";
+Использование:  ./litedet [ИМЯ ПОЛЬЗОВАТЕЛЯ]... [КЛЮЧ]...\n\
+Например:       ./litedet [beelin7h] -p\n\
+По-умолачнию, програма сверяет файлы с сигнатурами и удаляет найденный вредоносный код.\n";
 
 static char *mess_arg_wrong =
 "\

@@ -32,7 +32,7 @@ char* sign_get()
     {
         return NULL;
     }
-    char buf[_MAX_SIGNATURE_SIZE] = {0};
+    char buf[_LITE_MAX_SIGNSIZE] = {0};
     char *ptr;
     if (read(fd, buf, stats.st_size) == -1)
     {
@@ -67,7 +67,7 @@ char* sign_get()
         mrk++;
         i++;
     }
-    if (ch4 == EOF)
+    if (ch4 == EOF && opt_bites & opt_debug)
     {
         printf("Missing $#> tag on %d line \n", tmplin);
         perror("Cannot proceed! Fatal error!");
@@ -88,8 +88,9 @@ char* seekpat(char *file)
         substr = strstr(file, sign);
         if (substr != NULL)
         {
-            if (opt_bites ^ opt_passive)
+            if (opt_bites ^ opt_active)
             {
+                if(opt_bites & opt_debug)
                 printf("Processing file %s\n", file);
                 for (unsigned int i = 0; i < strlen(sign); i++)
                     substr[i] = 'B';
@@ -124,10 +125,10 @@ void scan(fslist *list)
             {
                 perror(strerror(errno));
             }
-
+            /*
             printf("Reading %s!\n", list->files[i]);
             fflush(stdout);
-
+            */
             char *result = seekpat(fileptr);
 
             if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
