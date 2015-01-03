@@ -164,7 +164,8 @@ DIST          = ../../../../Qt/5.4/gcc_64/mkspecs/features/spec_pre.prf \
 		../../../../Qt/5.4/gcc_64/mkspecs/features/lex.prf \
 		../../litedet.pro list.h \
 		walk.h \
-		scan.h ../main.c
+		scan.h \
+		const.h ../main.c
 QMAKE_TARGET  = litedet
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = litedet
@@ -462,7 +463,8 @@ compiler_clean:
 
 ####### Compile
 
-main.o: ../main.c ../scan.h \
+main.o: ../main.c ../const.h \
+		../scan.h \
 		../walk.h \
 		../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c

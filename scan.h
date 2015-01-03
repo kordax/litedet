@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <dirent.h>
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
@@ -12,8 +13,6 @@
 #include <errno.h>
 #include <error.h>
 #include "walk.h"
-
-#endif // SCAN
 
 char* sign_get()
 {
@@ -29,19 +28,23 @@ char* sign_get()
     {
         perror(strerror(errno));
     }
-    char *buf = (char*) malloc(sizeof(stats.st_size));
+    if (con_mark > stats.st_size)
+    {
+        return NULL;
+    }
+    char buf[_LITE_MAX_SIGNSIZE] = {0};
     char *ptr;
     if (read(fd, buf, stats.st_size) == -1)
     {
         perror(strerror(errno));
     }
     char ch1, ch2, ch3, ch4;
-    u_int i = 0;
-    u_int line = 0;
+    unsigned int i = 0;
+    unsigned int tmplin = 0;
     size_t ptn_size = 3;
-    if (stats.st_size < 4)
+    if (stats.st_size < 4 && opt_bites & opt_debug)
     {
-        perror("Impossible pattern size! Size is less than 4 chars!");
+        perror("Signature base is less than 4 symbols!");
     }
     while (ch4 != EOF)
     {
@@ -52,21 +55,21 @@ char* sign_get()
         ch4 = buf[i+3];
         if (ch1 == '\n')
         {
-            line++; // Идентифицируем строку
+            tmplin++; // Идентифицируем строку
         }
         if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
         {
             ptr = (char*) malloc(ptn_size);
             memcpy(ptr, buf, ptn_size); // Копируем найденную строку, за исключением закрывающих тегов!
             ptr[ptn_size - 4] = '\0'; // Добавляем 0\ вконец. Конец у нас - 4, т.к. по факту имеем пробел(_) и $#>
-            //ptr[ptn_size - 3] = (char)92; // Добавляем 0\ вконец.
             break;
         }
+        con_mark++;
         i++;
     }
-    if (ch3 == '0' || ch4 == (char)92)
+    if (ch4 == EOF && opt_bites & opt_debug)
     {
-        printf("Missing $#> tag on %d line \n", line);
+        printf("Missing $#> tag on %d line \n", tmplin);
         perror("Cannot proceed! Fatal error!");
     }
 
@@ -75,29 +78,35 @@ char* sign_get()
     return substr;
 }
 
-char* seekpat(char *buf)
+int scanpat(char *file)
 {
-    char *substr = sign_get();
-    char *result;
+    char *sign;
+    char *substr;
 
-    //if (buf[len - 1] == substr[len - 1])
-    result = strstr(buf, substr);
-    if (result == NULL)
+    while((sign = sign_get()) != NULL)
     {
-        perror("No substr found!");
+        substr = strstr(file, sign);
+        if (substr != NULL)
+        {
+            con_equal++;
+            fflush(stdout);
+            if (opt_bites & opt_active)
+                for (unsigned int i = 0; i < strlen(sign); i++)
+                    substr[i] = 'B';
+        }
     }
-
-    return result;
+    if (substr == NULL) return -1;
+    return 0;
 }
 
 void scan(fslist *list)
 {
     struct stat stats;
     int fd;
-    void *addr;
-    for (unsigned int i = 0;i < list->f_size; i++)
+
+    for (unsigned int i = 0; i < list->f_size; i++)
     {
-        fd = open(list->files[i], O_RDONLY);
+        fd = open(list->files[i], O_RDWR);
         if (fd < 0)
         {
             perror(strerror(errno));
@@ -106,23 +115,42 @@ void scan(fslist *list)
         {
             perror(strerror(errno));
         }
-        addr = mmap(0, stats.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
-        if(addr == MAP_FAILED)
+        if(stats.st_size > 0)
         {
-            perror(strerror(errno));
+            char *fileptr = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+
+            if (fileptr == MAP_FAILED)
+            {
+                perror(strerror(errno));
+            }
+
+            int result = scanpat(fileptr);
+
+            if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
+            {
+                perror(strerror(errno));
+            }
+
+            if (result)
+            {
+                printf("Совпадение с базой сигнатур в файле: %s\n", list->files[i]);
+                if(opt_bites & opt_active)
+                    printf("...Вредоносный код удалён.\n");
+                if(opt_bites & opt_log)
+                {
+                    // Логирование в файл
+                }
+            }
+
+            if (munmap(fileptr, stats.st_size) == -1)
+            {
+                perror(strerror(errno));
+            }
+            if (close(fd) == -1)
+            {
+                perror(strerror(errno));
+            }
         }
-        //char *buf = (char*) malloc(sizeof(char[stats.st_size]));
-        char *buf = (char*) malloc(sizeof(char[stats.st_size]));
-        if (read(fd, buf, stats.st_size) == -1)
-        {
-            perror(strerror(errno));
-        }
-        printf("Reading %s!\n", list->files[i]);
-
-        char* result = seekpat(buf);
-
-        printf("I've found %s... in ", result);
-        printf("file: %s", list->files[i]);
-
     }
 }
+#endif // SCAN

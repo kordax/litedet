@@ -5,15 +5,31 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdbool.h>
+#include "const.h"
 #include "scan.h"
 
-#define _NANO_MULTIPLIER 1000000000
-#define _BEGET_U_MAXCHARS 10
+void handle_arg(char *argstr)
+{
+    switch(arg_is_long)
+    {
+        case true:
+            if(strcmp(argstr, arg_longarg_list[active]) == 0)       {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
+            if(strcmp(argstr, arg_longarg_list[log]) == 0)          {   opt_bites |= opt_log;       break;  } // Установка бита логирования
+            if(strcmp(argstr, arg_longarg_list[extlog]) == 0)       {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
+            if(strcmp(argstr, arg_longarg_list[debug]) == 0)        {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+        default:
+            if(strcmp(argstr, arg_shortarg_list[active]) == 0)      {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
+            if(strcmp(argstr, arg_shortarg_list[log]) == 0)         {   opt_bites |= opt_log;       break;  } // Установка бита логирования
+            if(strcmp(argstr, arg_shortarg_list[extlog]) == 0)      {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
+            if(strcmp(argstr, arg_shortarg_list[debug]) == 0)       {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+    }
+}
 
 char* get_real_path(char *user)
 {
     char *root = (char*) malloc(sizeof(char[_POSIX_PATH_MAX]));
-    char *home_dir = (char*) malloc(sizeof(char[10+_BEGET_U_MAXCHARS]));
+    char *home_dir = (char*) malloc(sizeof(char[10+_LITE_MAX_UNAMESIZE]));
     char *append = (char*) malloc(sizeof(char[10]));
     append = "test";
     strcat(home_dir, "/home/");
@@ -28,26 +44,97 @@ char* get_real_path(char *user)
 
 int main(int argc, char *argv[])
 {
-
-    // ======================= Переменные
-    char user[_BEGET_U_MAXCHARS] = {0};
-    struct timespec start, stop;
-    // ======================= Переменные
-
-    // ======================= Таймер
-    int clock_status = clock_gettime(CLOCK_REALTIME, &start);
-    if (clock_status < 0)
+    // ======================= Обработка аргументов
+    if(argc <= 1)
     {
-        perror("Timer error");
-        return 1;
+        printf(mess_usage);
+        return -1;
     }
-    // ======================= Таймер
+    if(argc > 3)
+    {
+        printf(mess_arg_toomany);
+        return -1;
+    }
+    if(argc == 3)
+    {
+        if(argv[2][0] != '-')
+        {
+            printf(mess_arg_maybe, argv[2]);
+            printf(mess_usage);
+            return -1;
+        }
+    }
 
-    strcpy(user, "kordax");
+    for (int i = 0; i < _LITE_OPTIONS; i++)
+    {
+        if (sec_arg == NULL) sec_arg = strstr(argv[argc - 1], arg_longarg_list[i]);
+        if (sec_arg == NULL) sec_arg = strstr(argv[argc - 1], arg_shortarg_list[i]);
+        if(sec_arg != NULL)
+        {
+            if(strcmp(sec_arg, arg_shortarg_list[i]) == 0)
+            {
+                arg_is_valid = true;
+                sec_arg = arg_shortarg_list[i];
+                break;
+            }
+            if(strcmp(sec_arg, arg_longarg_list[i]) == 0)
+            {
+                arg_is_long = true;
+                arg_is_valid = true;
+                sec_arg = arg_longarg_list[i];
+                break;
+            }
+        }
+    }
+
+    if(arg_is_valid) // Обработаем правильно введённые аргументы
+    {
+        handle_arg(sec_arg);
+    }
+    if (strcmp(argv[argc - 1], "--help") == 0 || strcmp(argv[argc - 1], "-h") == 0)
+    {
+        printf(mess_usage);
+        printf(mess_arg_list);
+        return 0;
+    }
+    if (argc == 3)
+    if (sec_arg == NULL)
+    {
+        printf(mess_arg_wrong, argv[argc - 1]);
+        printf(mess_usage);
+        return -1;
+    }
+
+    // ======================= Обработка аргументов
+
+    char *user = argv[1];
+
     char *root = get_real_path(user);
-    puts(root);
+    if (opt_bites & opt_debug)
+    printf("Starting at %s\n", root);
+
+    /*
+     * Таймер
+    */
+    struct timespec start, stop;
+    int clock_status;
+    if(opt_bites & opt_debug)
+    {
+        clock_status = clock_gettime(CLOCK_REALTIME, &start);
+        if (clock_status < 0)
+        {
+            perror("Timer error");
+            return 1;
+        }
+    }
+    /*
+     * Таймер
+    */
 
     // ======================= Рекурсивный поиск в директориях
+
+    printf("Сканирование запущено:\n");
+    if (opt_bites & opt_active) printf("Внимание! Программа работает в активном режиме!\n\n");
 
     fslist *files_list = fs_make();
 
@@ -55,11 +142,31 @@ int main(int argc, char *argv[])
     scan(files_list);
 
     // ======================= Рекурсивный поиск в директориях
-    clock_status = clock_gettime(CLOCK_REALTIME, &stop);
-    long double res_sec = (stop.tv_sec - start.tv_sec) * _NANO_MULTIPLIER;
-    long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
-    long double tt = res_sec + res_nsec;
-    tt = tt / _NANO_MULTIPLIER;
-    printf( "Processing time is %.3Lf seconds!\n", tt);
+
+    /*
+     * Таймер
+    */
+
+    if(opt_bites & opt_debug)
+    {
+        clock_status = clock_gettime(CLOCK_REALTIME, &stop);
+        long double res_sec = (stop.tv_sec - start.tv_sec) * _LITE_TIMERNANOMTPL;
+        long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
+        long double tt = res_sec + res_nsec;
+        tt = tt / _LITE_TIMERNANOMTPL;
+        printf( "Processing time is %.3Lf seconds!\n", tt);
+    }
+
+    /*
+     * Таймер
+    */
+
+    printf("\
+\nСканирование завершено!\n");
+    if(con_equal == 1)
+        printf(mess_found_onlyone, con_equal);
+    else
+        printf(mess_found_multiple, con_equal);
+
     return 0;
 }
