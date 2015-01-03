@@ -81,13 +81,22 @@ static char *mess_arg_maybe =
 Возможно вы имели ввиду --%s и пропустили символы '-'?\n\
 Внимание: Все аргументы регистрозависимы.\n";
 
+static char *mess_found_multiple =
+"\
+Найдено %d вредоносных файлов.\n";
+
+static char *mess_found_onlyone =
+"\
+Найден %d вредоносный файл.\n";
+
 /*
  * OTHER:
 */
 
-static unsigned int mrk = 0;
+static unsigned int con_mark         =   0;
+static unsigned int con_equal   =   0;
+bool arg_is_long                =   false;
+bool arg_is_valid               =   false;
 static char *sec_arg;
-bool arg_is_long = false;
-bool arg_is_valid = false;
 
 #endif // OPTIONS_H

@@ -107,24 +107,34 @@ int main(int argc, char *argv[])
 
     // ======================= Обработка аргументов
 
-    // ======================= Переменные
     char *user = argv[1];
-    struct timespec start, stop;
-    // ======================= Переменные
-
-    // ======================= Таймер
-    int clock_status = clock_gettime(CLOCK_REALTIME, &start);
-    if (clock_status < 0)
-    {
-        perror("Timer error");
-        return 1;
-    }
-    // ======================= Таймер
 
     char *root = get_real_path(user);
+    if (opt_bites & opt_debug)
     printf("Starting at %s\n", root);
 
+    /*
+     * Таймер
+    */
+    struct timespec start, stop;
+    int clock_status;
+    if(opt_bites & opt_debug)
+    {
+        clock_status = clock_gettime(CLOCK_REALTIME, &start);
+        if (clock_status < 0)
+        {
+            perror("Timer error");
+            return 1;
+        }
+    }
+    /*
+     * Таймер
+    */
+
     // ======================= Рекурсивный поиск в директориях
+
+    printf("Сканирование запущено:\n");
+    if (opt_bites & opt_active) printf("Внимание! Программа работает в активном режиме!\n\n");
 
     fslist *files_list = fs_make();
 
@@ -132,11 +142,31 @@ int main(int argc, char *argv[])
     scan(files_list);
 
     // ======================= Рекурсивный поиск в директориях
-    clock_status = clock_gettime(CLOCK_REALTIME, &stop);
-    long double res_sec = (stop.tv_sec - start.tv_sec) * _LITE_TIMERNANOMTPL;
-    long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
-    long double tt = res_sec + res_nsec;
-    tt = tt / _LITE_TIMERNANOMTPL;
-    printf( "Processing time is %.3Lf seconds!\n", tt);
+
+    /*
+     * Таймер
+    */
+
+    if(opt_bites & opt_debug)
+    {
+        clock_status = clock_gettime(CLOCK_REALTIME, &stop);
+        long double res_sec = (stop.tv_sec - start.tv_sec) * _LITE_TIMERNANOMTPL;
+        long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
+        long double tt = res_sec + res_nsec;
+        tt = tt / _LITE_TIMERNANOMTPL;
+        printf( "Processing time is %.3Lf seconds!\n", tt);
+    }
+
+    /*
+     * Таймер
+    */
+
+    printf("\
+\nСканирование завершено!\n");
+    if(con_equal == 1)
+        printf(mess_found_onlyone, con_equal);
+    else
+        printf(mess_found_multiple, con_equal);
+
     return 0;
 }

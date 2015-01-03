@@ -28,7 +28,7 @@ char* sign_get()
     {
         perror(strerror(errno));
     }
-    if (mrk > stats.st_size)
+    if (con_mark > stats.st_size)
     {
         return NULL;
     }
@@ -42,7 +42,7 @@ char* sign_get()
     unsigned int i = 0;
     unsigned int tmplin = 0;
     size_t ptn_size = 3;
-    if (stats.st_size < 4)
+    if (stats.st_size < 4 && opt_bites & opt_debug)
     {
         perror("Signature base is less than 4 symbols!");
     }
@@ -64,7 +64,7 @@ char* sign_get()
             ptr[ptn_size - 4] = '\0'; // Добавляем 0\ вконец. Конец у нас - 4, т.к. по факту имеем пробел(_) и $#>
             break;
         }
-        mrk++;
+        con_mark++;
         i++;
     }
     if (ch4 == EOF && opt_bites & opt_debug)
@@ -78,7 +78,7 @@ char* sign_get()
     return substr;
 }
 
-char* seekpat(char *file)
+int scanpat(char *file)
 {
     char *sign;
     char *substr;
@@ -88,17 +88,15 @@ char* seekpat(char *file)
         substr = strstr(file, sign);
         if (substr != NULL)
         {
-            if (opt_bites ^ opt_active)
-            {
-                if(opt_bites & opt_debug)
-                printf("Processing file %s\n", file);
+            con_equal++;
+            fflush(stdout);
+            if (opt_bites & opt_active)
                 for (unsigned int i = 0; i < strlen(sign); i++)
                     substr[i] = 'B';
-            }
-            return substr;
         }
     }
-    return NULL;
+    if (substr == NULL) return -1;
+    return 0;
 }
 
 void scan(fslist *list)
@@ -125,23 +123,22 @@ void scan(fslist *list)
             {
                 perror(strerror(errno));
             }
-            /*
-            printf("Reading %s!\n", list->files[i]);
-            fflush(stdout);
-            */
-            char *result = seekpat(fileptr);
+
+            int result = scanpat(fileptr);
 
             if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
             {
                 perror(strerror(errno));
             }
 
-            if (result != NULL)
+            if (result)
             {
-                if(opt_bites ^ opt_log)
+                printf("Совпадение с базой сигнатур в файле: %s\n", list->files[i]);
+                if(opt_bites & opt_active)
+                    printf("...Вредоносный код удалён.\n");
+                if(opt_bites & opt_log)
                 {
-                    printf("Signature found in file: %s\n", list->files[i]);
-                    fflush(stdout);
+                    // Логирование в файл
                 }
             }
 

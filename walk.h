@@ -19,13 +19,13 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
     cur_dir_ptr = opendir(root);
     if(cur_dir_ptr == NULL)
     {
-        if(errno == EACCES) perror(strerror(EACCES));
-        if(errno == ENOTDIR) perror(strerror(ENOTDIR));
-        if(errno == EBADF) perror(strerror(EBADF));
-        if(errno == EMFILE) perror(strerror(EMFILE));
-        if(errno == ENFILE) perror(strerror(ENFILE));
-        if(errno == ENOENT) perror(strerror(ENOENT));
-        if(errno == ENOMEM) perror(strerror(ENOMEM));
+        if(errno == EACCES)     perror(strerror(EACCES));
+        if(errno == ENOTDIR)    perror(strerror(ENOTDIR));
+        if(errno == EBADF)      perror(strerror(EBADF));
+        if(errno == EMFILE)     perror(strerror(EMFILE));
+        if(errno == ENFILE)     perror(strerror(ENFILE));
+        if(errno == ENOENT)     perror(strerror(ENOENT));
+        if(errno == ENOMEM)     perror(strerror(ENOMEM));
     }
     while ((entry = readdir(cur_dir_ptr)) != NULL)
     {
@@ -40,7 +40,8 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
                 strcat(temp, "/");
                 strcpy(node->path, strcat(temp, entry->d_name));
                 fs_pushback(list, node); //Добавляем в список наш файл
-                puts(node->path);
+                if(opt_bites & opt_debug)
+                printf("Pushing dir entry %30s in walk", node->path);
             }
             if(entry->d_type == DT_DIR) // Обрабатываем директорию
             {
@@ -49,7 +50,8 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
                 strcat(temp, entry->d_name);
                 strcpy(node->path, temp);
                 fs_pushback(list, node); //Добавляем в список наш файл
-                puts(node->path);
+                if(opt_bites & opt_debug)
+                printf("Pushing file entry %30s in walk", node->path);
                 walk(list, temp);
             }
         }
