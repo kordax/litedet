@@ -32,7 +32,7 @@ char* sign_get()
     {
         return NULL;
     }
-    char buf[_MAX_SIGNATURE_SIZE] = {0};
+    char buf[_LITE_MAX_SIGNSIZE] = {0};
     char *ptr;
     if (read(fd, buf, stats.st_size) == -1)
     {
@@ -67,7 +67,7 @@ char* sign_get()
         mrk++;
         i++;
     }
-    if (ch4 == EOF)
+    if (ch4 == EOF && opt_bites & opt_debug)
     {
         printf("Missing $#> tag on %d line \n", tmplin);
         perror("Cannot proceed! Fatal error!");
@@ -86,10 +86,15 @@ char* seekpat(char *file)
     while((sign = sign_get()) != NULL)
     {
         substr = strstr(file, sign);
-        if (substr != NULL && opt_bites ^ opt_passive) // Проверка на наличие пассивного режима
+        if (substr != NULL)
         {
-            for (unsigned int i = 0; i < strlen(sign); i++)
-                substr[i] = 'B';
+            if (opt_bites ^ opt_active)
+            {
+                if(opt_bites & opt_debug)
+                printf("Processing file %s\n", file);
+                for (unsigned int i = 0; i < strlen(sign); i++)
+                    substr[i] = 'B';
+            }
             return substr;
         }
     }
@@ -114,16 +119,16 @@ void scan(fslist *list)
         }
         if(stats.st_size > 0)
         {
-            char *fileptr = mmap(0, stats.st_size, PROT_EXEC | PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            char *fileptr = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
             if (fileptr == MAP_FAILED)
             {
                 perror(strerror(errno));
             }
-
+            /*
             printf("Reading %s!\n", list->files[i]);
             fflush(stdout);
-
+            */
             char *result = seekpat(fileptr);
 
             if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
@@ -133,8 +138,11 @@ void scan(fslist *list)
 
             if (result != NULL)
             {
-                printf("Found virus signature in file: %s!", list->files[i]);
-                fflush(stdout);
+                if(opt_bites ^ opt_log)
+                {
+                    printf("Signature found in file: %s\n", list->files[i]);
+                    fflush(stdout);
+                }
             }
 
             if (munmap(fileptr, stats.st_size) == -1)

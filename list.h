@@ -13,8 +13,8 @@ typedef struct fslist {
     struct fsnode *head;
     struct fsnode *tail;
 
-    char *files[_MAX_SYSTEM_FILES];
-    char *dirs[_MAX_SYSTEM_FILES];
+    char *files[_LITE_MAX_FILES];
+    char *dirs[_LITE_MAX_FILES];
 
 } fslist;
 

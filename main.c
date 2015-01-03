@@ -5,13 +5,31 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <time.h>
+#include <stdbool.h>
 #include "const.h"
 #include "scan.h"
+
+void handle_arg(char *argstr)
+{
+    switch(arg_is_long)
+    {
+        case true:
+            if(strcmp(argstr, arg_longarg_list[active]) == 0)       {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
+            if(strcmp(argstr, arg_longarg_list[log]) == 0)          {   opt_bites |= opt_log;       break;  } // Установка бита логирования
+            if(strcmp(argstr, arg_longarg_list[extlog]) == 0)       {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
+            if(strcmp(argstr, arg_longarg_list[debug]) == 0)        {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+        default:
+            if(strcmp(argstr, arg_shortarg_list[active]) == 0)      {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
+            if(strcmp(argstr, arg_shortarg_list[log]) == 0)         {   opt_bites |= opt_log;       break;  } // Установка бита логирования
+            if(strcmp(argstr, arg_shortarg_list[extlog]) == 0)      {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
+            if(strcmp(argstr, arg_shortarg_list[debug]) == 0)       {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+    }
+}
 
 char* get_real_path(char *user)
 {
     char *root = (char*) malloc(sizeof(char[_POSIX_PATH_MAX]));
-    char *home_dir = (char*) malloc(sizeof(char[10+_BEGET_U_MAXCHARS]));
+    char *home_dir = (char*) malloc(sizeof(char[10+_LITE_MAX_UNAMESIZE]));
     char *append = (char*) malloc(sizeof(char[10]));
     append = "test";
     strcat(home_dir, "/home/");
@@ -27,7 +45,7 @@ char* get_real_path(char *user)
 int main(int argc, char *argv[])
 {
     // ======================= Обработка аргументов
-    if(argc == 1)
+    if(argc <= 1)
     {
         printf(mess_usage);
         return -1;
@@ -37,23 +55,56 @@ int main(int argc, char *argv[])
         printf(mess_arg_toomany);
         return -1;
     }
-    if(argc > 2)
+    if(argc == 3)
     {
-        char ch;
-        ch = argv[2][0];
-        if(ch != '-')
+        if(argv[2][0] != '-')
         {
-            printf(mess_arg_wrong);
+            printf(mess_arg_maybe, argv[2]);
             printf(mess_usage);
             return -1;
         }
-        ch = argv[2][1];
-        switch(ch)
+    }
+
+    for (int i = 0; i < _LITE_OPTIONS; i++)
+    {
+        if (sec_arg == NULL) sec_arg = strstr(argv[argc - 1], arg_longarg_list[i]);
+        if (sec_arg == NULL) sec_arg = strstr(argv[argc - 1], arg_shortarg_list[i]);
+        if(sec_arg != NULL)
         {
-            case 'p':
-                opt_bites |= opt_passive;
+            if(strcmp(sec_arg, arg_shortarg_list[i]) == 0)
+            {
+                arg_is_valid = true;
+                sec_arg = arg_shortarg_list[i];
+                break;
+            }
+            if(strcmp(sec_arg, arg_longarg_list[i]) == 0)
+            {
+                arg_is_long = true;
+                arg_is_valid = true;
+                sec_arg = arg_longarg_list[i];
+                break;
+            }
         }
     }
+
+    if(arg_is_valid) // Обработаем правильно введённые аргументы
+    {
+        handle_arg(sec_arg);
+    }
+    if (strcmp(argv[argc - 1], "--help") == 0 || strcmp(argv[argc - 1], "-h") == 0)
+    {
+        printf(mess_usage);
+        printf(mess_arg_list);
+        return 0;
+    }
+    if (argc == 3)
+    if (sec_arg == NULL)
+    {
+        printf(mess_arg_wrong, argv[argc - 1]);
+        printf(mess_usage);
+        return -1;
+    }
+
     // ======================= Обработка аргументов
 
     // ======================= Переменные
@@ -95,8 +146,12 @@ int main(int argc, char *argv[])
     strcpy(user, "kordax");
 >>>>>>> 266e8d11499363f1f82c7db8a09f8dc4bf4192a2
     char *root = get_real_path(user);
+<<<<<<< HEAD
     puts(root);
 >>>>>>> 4a45061c06b7e2a7455a5e31cf39e9757aa96f4b
+=======
+    printf("Starting at %s\n", root);
+>>>>>>> dev
 
     // ======================= Рекурсивный поиск в директориях
 
@@ -107,10 +162,10 @@ int main(int argc, char *argv[])
 
     // ======================= Рекурсивный поиск в директориях
     clock_status = clock_gettime(CLOCK_REALTIME, &stop);
-    long double res_sec = (stop.tv_sec - start.tv_sec) * _NANO_MULTIPLIER;
+    long double res_sec = (stop.tv_sec - start.tv_sec) * _LITE_TIMERNANOMTPL;
     long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
     long double tt = res_sec + res_nsec;
-    tt = tt / _NANO_MULTIPLIER;
+    tt = tt / _LITE_TIMERNANOMTPL;
     printf( "Processing time is %.3Lf seconds!\n", tt);
     return 0;
 }
