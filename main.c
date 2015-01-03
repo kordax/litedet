@@ -9,6 +9,8 @@
 #include "const.h"
 #include "scan.h"
 
+static char *sec_arg;
+
 void handle_arg(char *argstr)
 {
     switch(arg_is_long)
@@ -135,6 +137,7 @@ int main(int argc, char *argv[])
 
     printf("Сканирование запущено:\n");
     if (opt_bites & opt_active) printf("Внимание! Программа работает в активном режиме!\n\n");
+    else printf("\n");
 
     fslist *files_list = fs_make();
 
@@ -161,12 +164,9 @@ int main(int argc, char *argv[])
      * Таймер
     */
 
-    printf("\
-\nСканирование завершено!\n");
-    if(con_equal == 1)
-        printf(mess_found_onlyone, con_equal);
-    else
-        printf(mess_found_multiple, con_equal);
+    printf("\nСканирование завершено!\n");
+    printf(mess_found_files, c_occur_files);
+    printf(mess_found_overall, c_occur_overall);
 
     return 0;
 }

@@ -14,10 +14,15 @@
 #include <error.h>
 #include "walk.h"
 
+static unsigned int c_mark          =   0;
+static unsigned int c_occur_files   =   0;
+static unsigned int c_occur_overall =   0;
+
 char* sign_get()
 {
     char *substr;
     struct stat stats;
+    unsigned int signsize = 0;
     char *sigfile = "/home/kordax/sign.txt";
     int fd = open(sigfile, O_RDONLY);
     if (fd < 0)
@@ -28,75 +33,73 @@ char* sign_get()
     {
         perror(strerror(errno));
     }
-    if (con_mark > stats.st_size)
+    if (c_mark > stats.st_size)
     {
         return NULL;
     }
+
+    char *filebuf = (char *) malloc(stats.st_size);
     char buf[_LITE_MAX_SIGNSIZE] = {0};
-    char *ptr;
-    if (read(fd, buf, stats.st_size) == -1)
+    int i = 0;
+
+    if (read(fd, filebuf, stats.st_size) == -1)
     {
         perror(strerror(errno));
     }
-    char ch1, ch2, ch3, ch4;
-    unsigned int i = 0;
-    unsigned int tmplin = 0;
-    size_t ptn_size = 3;
-    if (stats.st_size < 4 && opt_bites & opt_debug)
+    char temp[200] = {0};
+    strcpy(temp, filebuf);
+    if (stats.st_size < 4)
     {
         perror("Signature base is less than 4 symbols!");
     }
-    while (ch4 != EOF)
+    while((filebuf[c_mark] != '[' || filebuf[c_mark + 1] != '#' || filebuf[c_mark + 2] != ']' || filebuf[c_mark + 3] != ' ') && filebuf[c_mark + 3] != '\0')
     {
-        ptn_size++;
-        ch1 = buf[i];
-        ch2 = buf[i+1];
-        ch3 = buf[i+2];
-        ch4 = buf[i+3];
-        if (ch1 == '\n')
-        {
-            tmplin++; // Идентифицируем строку
-        }
-        if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
-        {
-            ptr = (char*) malloc(ptn_size);
-            memcpy(ptr, buf, ptn_size); // Копируем найденную строку, за исключением закрывающих тегов!
-            ptr[ptn_size - 4] = '\0'; // Добавляем 0\ вконец. Конец у нас - 4, т.к. по факту имеем пробел(_) и $#>
-            break;
-        }
-        con_mark++;
-        i++;
+       c_mark++;
     }
-    if (ch4 == EOF && opt_bites & opt_debug)
+    if(filebuf[c_mark + 3] == '\0')
     {
-        printf("Missing $#> tag on %d line \n", tmplin);
-        perror("Cannot proceed! Fatal error!");
+        return NULL;
     }
-
-    substr = ptr;
+    if(filebuf[c_mark] == '[' && filebuf[c_mark + 1] == '#' && filebuf[c_mark + 2] == ']' && filebuf[c_mark + 3] == ' ')
+    {
+        c_mark += 4;
+        while(filebuf[c_mark] != ' ' && filebuf[c_mark + 1] != '$' && filebuf[c_mark + 2] != '#' && filebuf[c_mark + 3] != '>')
+        {
+            buf[i] = filebuf[c_mark];
+            i++;
+            c_mark++;
+            signsize++;
+        }
+    }
+    substr = buf;
 
     return substr;
 }
 
-int scanpat(char *file)
+char* scanpat(char *file)
 {
-    char *sign;
-    char *substr;
+    char *sign = NULL;
+    char *substr = NULL;
+    char *lastfound = NULL;
+    c_mark = 0;
+    bool sign_found = false;
 
     while((sign = sign_get()) != NULL)
     {
         substr = strstr(file, sign);
         if (substr != NULL)
         {
-            con_equal++;
-            fflush(stdout);
+            lastfound = malloc(strlen(substr));
+            strcpy(lastfound, substr);
+            sign_found = true;
+            c_occur_overall++;
             if (opt_bites & opt_active)
                 for (unsigned int i = 0; i < strlen(sign); i++)
                     substr[i] = 'B';
         }
     }
-    if (substr == NULL) return -1;
-    return 0;
+    if (lastfound == NULL && !sign_found) return NULL;
+    return lastfound;
 }
 
 void scan(fslist *list)
@@ -117,23 +120,25 @@ void scan(fslist *list)
         }
         if(stats.st_size > 0)
         {
-            char *fileptr = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            char *filebuf = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-            if (fileptr == MAP_FAILED)
+            if (filebuf == MAP_FAILED)
             {
                 perror(strerror(errno));
             }
 
-            int result = scanpat(fileptr);
+            char *result = scanpat(filebuf);
 
-            if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
+            if (msync(filebuf, stats.st_size, MS_SYNC) == -1)
             {
                 perror(strerror(errno));
             }
 
             if (result)
             {
-                printf("Совпадение с базой сигнатур в файле: %s\n", list->files[i]);
+                c_occur_files++;
+                printf("Совпадение с базой сигнатур в файле: %50s\n", list->files[i]);
+                printf("    ↳ Пример последней найденной сигнатуры: %43.8s\n", result);
                 if(opt_bites & opt_active)
                     printf("...Вредоносный код удалён.\n");
                 if(opt_bites & opt_log)
@@ -142,7 +147,7 @@ void scan(fslist *list)
                 }
             }
 
-            if (munmap(fileptr, stats.st_size) == -1)
+            if (munmap(filebuf, stats.st_size) == -1)
             {
                 perror(strerror(errno));
             }

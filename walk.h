@@ -41,17 +41,17 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
                 strcpy(node->path, strcat(temp, entry->d_name));
                 fs_pushback(list, node); //Добавляем в список наш файл
                 if(opt_bites & opt_debug)
-                printf("Pushing dir entry %30s in walk", node->path);
+                printf("[DEBUG] { walk() } Pushing file entry %49s\n", node->path);
             }
             if(entry->d_type == DT_DIR) // Обрабатываем директорию
             {
                 node->type = "DIR";
                 strcat(temp, "/");
                 strcat(temp, entry->d_name);
-                strcpy(node->path, temp);
-                fs_pushback(list, node); //Добавляем в список наш файл
-                if(opt_bites & opt_debug)
-                printf("Pushing file entry %30s in walk", node->path);
+                //strcpy(node->path, temp);
+                //fs_pushback(list, node); //Добавляем в список наш файл
+                //if(opt_bites & opt_debug)
+                printf("[DEBUG] { walk() } Opening dir entry %50s\n", temp);
                 walk(list, temp);
             }
         }
