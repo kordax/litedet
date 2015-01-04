@@ -14,7 +14,7 @@ CC            = gcc
 CXX           = g++
 DEFINES       = 
 CFLAGS        = -pipe -std=gnu11 -g -Wall -W -fPIE $(DEFINES)
-CXXFLAGS      = -pipe -g -Wall -W -fPIE $(DEFINES)
+CXXFLAGS      = -pipe -g -pg -Wall -W -fPIE $(DEFINES)
 INCPATH       = -I../../../Qt/5.4/gcc_64/mkspecs/linux-g++ -I../../litedet -I.
 QMAKE         = /home/kordax/Qt/5.4/gcc_64/bin/qmake
 DEL_FILE      = rm -f
@@ -35,7 +35,7 @@ COMPRESS      = gzip -9f
 DISTNAME      = litedet1.0.0
 DISTDIR = /home/kordax/Projects/litedet/.tmp/litedet1.0.0
 LINK          = g++
-LFLAGS        = -Wl,-rpath,/home/kordax/Qt/5.4/gcc_64
+LFLAGS        = -pg -Wl,-rpath,/home/kordax/Qt/5.4/gcc_64
 LIBS          = $(SUBLIBS)  
 AR            = ar cqs
 RANLIB        = 

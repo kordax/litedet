@@ -18,6 +18,11 @@ static unsigned int c_mark          =   0;
 static unsigned int c_occur_files   =   0;
 static unsigned int c_occur_overall =   0;
 
+void* strrem(char *src, char *ptr)
+{
+    void *vptr;
+}
+
 char* sign_get()
 {
     char *substr;
@@ -39,15 +44,13 @@ char* sign_get()
     }
 
     char *filebuf = (char *) malloc(stats.st_size);
-    char buf[_LITE_MAX_SIGNSIZE] = {0};
+    char buf[_LITE_MAX_SIGNSIZE];
     int i = 0;
 
     if (read(fd, filebuf, stats.st_size) == -1)
     {
         perror(strerror(errno));
     }
-    char temp[200] = {0};
-    strcpy(temp, filebuf);
     if (stats.st_size < 4)
     {
         perror("Signature base is less than 4 symbols!");

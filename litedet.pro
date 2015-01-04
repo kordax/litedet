@@ -15,5 +15,6 @@ HEADERS += \
     const.h
 
 QMAKE_CFLAGS += -std=gnu11
+QMAKE_CFLAGS += -g
 
 DISTFILES +=

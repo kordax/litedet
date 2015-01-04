@@ -10,21 +10,25 @@
 #include "scan.h"
 
 static char *sec_arg;
+bool arg_is_long                =   false;
+bool arg_is_valid               =   false;
 
 void handle_arg(char *argstr)
 {
     switch(arg_is_long)
     {
-        case true:
+        case true:                                                                                            // arg_longarg_list и arg_shortarg_list соответственно, определеные в файле const.h
             if(strcmp(argstr, arg_longarg_list[active]) == 0)       {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
             if(strcmp(argstr, arg_longarg_list[log]) == 0)          {   opt_bites |= opt_log;       break;  } // Установка бита логирования
             if(strcmp(argstr, arg_longarg_list[extlog]) == 0)       {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
             if(strcmp(argstr, arg_longarg_list[debug]) == 0)        {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+            if(strcmp(argstr, arg_longarg_list[mono]) == 0)         {   opt_bites |= opt_monothr;   break;  } // Установка бита режима монопоточности
         default:
             if(strcmp(argstr, arg_shortarg_list[active]) == 0)      {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
             if(strcmp(argstr, arg_shortarg_list[log]) == 0)         {   opt_bites |= opt_log;       break;  } // Установка бита логирования
             if(strcmp(argstr, arg_shortarg_list[extlog]) == 0)      {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
             if(strcmp(argstr, arg_shortarg_list[debug]) == 0)       {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+            if(strcmp(argstr, arg_shortarg_list[mono]) == 0)        {   opt_bites |= opt_monothr;   break;  } // Установка бита режима монопоточности
     }
 }
 
@@ -157,7 +161,7 @@ int main(int argc, char *argv[])
         long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
         long double tt = res_sec + res_nsec;
         tt = tt / _LITE_TIMERNANOMTPL;
-        printf( "Processing time is %.3Lf seconds!\n", tt);
+        printf( "Processing time is %.7Lf seconds!\n", tt);
     }
 
     /*
