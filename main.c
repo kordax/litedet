@@ -9,20 +9,26 @@
 #include "const.h"
 #include "scan.h"
 
+static char *sec_arg;
+bool arg_is_long                =   false;
+bool arg_is_valid               =   false;
+
 void handle_arg(char *argstr)
 {
     switch(arg_is_long)
     {
-        case true:
+        case true:                                                                                            // arg_longarg_list и arg_shortarg_list соответственно, определеные в файле const.h
             if(strcmp(argstr, arg_longarg_list[active]) == 0)       {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
             if(strcmp(argstr, arg_longarg_list[log]) == 0)          {   opt_bites |= opt_log;       break;  } // Установка бита логирования
             if(strcmp(argstr, arg_longarg_list[extlog]) == 0)       {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
             if(strcmp(argstr, arg_longarg_list[debug]) == 0)        {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+            if(strcmp(argstr, arg_longarg_list[mono]) == 0)         {   opt_bites |= opt_monothr;   break;  } // Установка бита режима монопоточности
         default:
             if(strcmp(argstr, arg_shortarg_list[active]) == 0)      {   opt_bites |= opt_active;    break;  } // Установка бита активного режима
             if(strcmp(argstr, arg_shortarg_list[log]) == 0)         {   opt_bites |= opt_log;       break;  } // Установка бита логирования
             if(strcmp(argstr, arg_shortarg_list[extlog]) == 0)      {   opt_bites |= opt_extlog;    break;  } // Установка бита расш. логирования
             if(strcmp(argstr, arg_shortarg_list[debug]) == 0)       {   opt_bites |= opt_debug;     break;  } // Установка бита режима отладки
+            if(strcmp(argstr, arg_shortarg_list[mono]) == 0)        {   opt_bites |= opt_monothr;   break;  } // Установка бита режима монопоточности
     }
 }
 
@@ -44,6 +50,8 @@ char* get_real_path(char *user)
 
 int main(int argc, char *argv[])
 {
+    preload();
+
     // ======================= Обработка аргументов
     if(argc <= 1)
     {
@@ -107,19 +115,7 @@ int main(int argc, char *argv[])
 
     // ======================= Обработка аргументов
 
-    // ======================= Переменные
     char *user = argv[1];
-    struct timespec start, stop;
-    // ======================= Переменные
-
-    // ======================= Таймер
-    int clock_status = clock_gettime(CLOCK_REALTIME, &start);
-    if (clock_status < 0)
-    {
-        perror("Timer error");
-        return 1;
-    }
-    // ======================= Таймер
 
 <<<<<<< HEAD
 =======
@@ -147,13 +143,39 @@ int main(int argc, char *argv[])
 >>>>>>> 266e8d11499363f1f82c7db8a09f8dc4bf4192a2
     char *root = get_real_path(user);
 <<<<<<< HEAD
+<<<<<<< HEAD
     puts(root);
 >>>>>>> 4a45061c06b7e2a7455a5e31cf39e9757aa96f4b
 =======
+=======
+    if (opt_bites & opt_debug)
+>>>>>>> test
     printf("Starting at %s\n", root);
 >>>>>>> dev
 
+    /*
+     * Таймер
+    */
+    struct timespec start, stop;
+    int clock_status;
+    if(opt_bites & opt_debug)
+    {
+        clock_status = clock_gettime(CLOCK_REALTIME, &start);
+        if (clock_status < 0)
+        {
+            perror("Timer error");
+            return 1;
+        }
+    }
+    /*
+     * Таймер
+    */
+
     // ======================= Рекурсивный поиск в директориях
+
+    printf("Сканирование запущено:\n");
+    if (opt_bites & opt_active) printf("Внимание! Программа работает в активном режиме!\n\n");
+    else printf("\n");
 
     fslist *files_list = fs_make();
 
@@ -161,11 +183,28 @@ int main(int argc, char *argv[])
     scan(files_list);
 
     // ======================= Рекурсивный поиск в директориях
-    clock_status = clock_gettime(CLOCK_REALTIME, &stop);
-    long double res_sec = (stop.tv_sec - start.tv_sec) * _LITE_TIMERNANOMTPL;
-    long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
-    long double tt = res_sec + res_nsec;
-    tt = tt / _LITE_TIMERNANOMTPL;
-    printf( "Processing time is %.3Lf seconds!\n", tt);
+
+    /*
+     * Таймер
+    */
+
+    if(opt_bites & opt_debug)
+    {
+        clock_status = clock_gettime(CLOCK_REALTIME, &stop);
+        long double res_sec = (stop.tv_sec - start.tv_sec) * _LITE_TIMERNANOMTPL;
+        long double res_nsec = stop.tv_nsec - start.tv_nsec; // * NANO_MULTIPLIER;
+        long double tt = res_sec + res_nsec;
+        tt = tt / _LITE_TIMERNANOMTPL;
+        printf( "Processing time is %.7Lf seconds!\n", tt);
+    }
+
+    /*
+     * Таймер
+    */
+
+    printf("\nСканирование завершено!\n");
+    printf(mess_found_files, c_occur_files);
+    printf(mess_found_overall, c_occur_overall);
+
     return 0;
 }

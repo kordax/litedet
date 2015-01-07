@@ -6,24 +6,36 @@
 */
 
 #define _LITE_MAX_FILES 10000
-#define _LITE_MAX_SIGNSIZE 16384
+#define _LITE_MAX_SIGNSIZE 200
 #define _LITE_TIMERNANOMTPL 1000000000
 #define _LITE_MAX_UNAMESIZE 6
-#define _LITE_OPTIONS 5 // Количество аргументов включая сокращённые.
+#define _LITE_OPTIONS 6 // Количество аргументов включая сокращённые.
+#define _LITE_KNOWN_FILETYPES 6
 
 /*
  * OPTION LIST:
 */
 
-enum arguments {help, active, log, extlog, debug};
+enum arguments {help, active, log, extlog, debug, mono};
+
+char *sys_file_types[_LITE_KNOWN_FILETYPES] =
+{
+"#php#",
+"#js#",
+"#jpg#",
+"#gif#",
+"#png#",
+"#htm#"
+};
 
 char *arg_longarg_list[_LITE_OPTIONS] =
 {
-"--help",       // 0
-"--active",    // 1
-"--log",        // 2
-"--extlog",     // 3
-"--debug"       // 4
+"--help",           // 0
+"--active",         // 1
+"--log",            // 2
+"--extlog",         // 3
+"--debug",          // 4
+"--mono"            // 5
 };
 
 char *arg_shortarg_list[_LITE_OPTIONS] =
@@ -32,14 +44,16 @@ char *arg_shortarg_list[_LITE_OPTIONS] =
 "-a",
 "-l",
 "-L",
-"-d"
+"-d",
+"-m"
 };
 
 static char *mess_arg_list =
 "\n\
 Аргументы, обязательные для длинных ключей, обязательны и для коротких.\n\
+    -h --help           Отобразить данный текст с помощью.\
     -a --active         Активный режим. В данном режиме происходит проверка с удалением.\n\
-    -m --mono           Режим монозадачности. В данном режиме не происходит многопоточной обработки.\n\
+    -m --mono           Режим монопоточности. В данном режиме не происходит многопоточной обработки.\n\
     -l --log            Режим логирования. В данном режиме логируется список обработанных файлов.\n\
     -L --extlog         Режим расширенного логирования. В данном режиме логируются все действия программы.\n\
     -d --debug          Режим отладки. В данном режиме выводится вся дополнительная информация.\n";
@@ -63,7 +77,8 @@ static char *mess_usage =
 "\
 Использование:  ./litedet [ИМЯ ПОЛЬЗОВАТЕЛЯ]... [КЛЮЧ]...\n\
 Например:       ./litedet [beelin7h] -p\n\
-По-умолачнию, програма сверяет файлы с сигнатурами и удаляет найденный вредоносный код.\n";
+По-умолчанию, программа сверяет файлы с сигнатурами и НЕ удаляет найденный вредоносный код.\n\
+Для удаления вредоносного кода воспользуйтесь активным режимом. (см. --help)\n";
 
 static char *mess_arg_wrong =
 "\
@@ -81,13 +96,28 @@ static char *mess_arg_maybe =
 Возможно вы имели ввиду --%s и пропустили символы '-'?\n\
 Внимание: Все аргументы регистрозависимы.\n";
 
-/*
- * OTHER:
-*/
+static char *mess_found_in_file =
+"\
+Совпадение с базой сигнатур в файле: %50s\n";
 
-static unsigned int mrk = 0;
-static char *sec_arg;
-bool arg_is_long = false;
-bool arg_is_valid = false;
+static char *mess_found_last_sig =
+"\
+↳ Пример последней найденной сигнатуры: %43.8s\n";
+
+static char *mess_found_neutralized =
+"\
+...Вредоносный код удалён.\n";
+
+static char *mess_found_files =
+"\
+Количество файлов c вредоносными вставками: %43d\n";
+
+static char *mess_found_overall =
+"\
+Количество вредоносных вставок:             %43d\n";
+
+/*
+ * CONFIG:
+*/
 
 #endif // OPTIONS_H

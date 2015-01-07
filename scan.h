@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -12,144 +13,155 @@
 #include <limits.h>
 #include <errno.h>
 #include <error.h>
+#include "preload.h"
 #include "walk.h"
 
-char* sign_get()
+static int          current_fd;
+static struct stat  current_stats;
+
+typedef struct sigtype {
+
+    char content[_LITE_MAX_SIGNSIZE + 1]; // +1 для '\0'
+    char type[5];
+    unsigned int size;
+
+} sigtype;
+
+void sign_rem(char *ptr_at_sig, unsigned int sig_size)
 {
-    char *substr;
-    struct stat stats;
-    char *sigfile = "/home/kordax/sign.txt";
-    int fd = open(sigfile, O_RDONLY);
-    if (fd < 0)
-    {
-        perror(strerror(errno));
-    }
-    if (fstat(fd, &stats) == -1)
-    {
-        perror(strerror(errno));
-    }
-    if (mrk > stats.st_size)
-    {
-        return NULL;
-    }
-    char buf[_LITE_MAX_SIGNSIZE] = {0};
-    char *ptr;
-    if (read(fd, buf, stats.st_size) == -1)
-    {
-        perror(strerror(errno));
-    }
-    char ch1, ch2, ch3, ch4;
-    unsigned int i = 0;
-    unsigned int tmplin = 0;
-    size_t ptn_size = 3;
-    if (stats.st_size < 4)
-    {
-        perror("Signature base is less than 4 symbols!");
-    }
-    while (ch4 != EOF)
-    {
-        ptn_size++;
-        ch1 = buf[i];
-        ch2 = buf[i+1];
-        ch3 = buf[i+2];
-        ch4 = buf[i+3];
-        if (ch1 == '\n')
-        {
-            tmplin++; // Идентифицируем строку
-        }
-        if (ch1 == ' ' && ch2 == '$' && ch3 =='#' && ch4 =='>')
-        {
-            ptr = (char*) malloc(ptn_size);
-            memcpy(ptr, buf, ptn_size); // Копируем найденную строку, за исключением закрывающих тегов!
-            ptr[ptn_size - 4] = '\0'; // Добавляем 0\ вконец. Конец у нас - 4, т.к. по факту имеем пробел(_) и $#>
-            break;
-        }
-        mrk++;
-        i++;
-    }
-    if (ch4 == EOF && opt_bites & opt_debug)
-    {
-        printf("Missing $#> tag on %d line \n", tmplin);
-        perror("Cannot proceed! Fatal error!");
-    }
-
-    substr = ptr;
-
-    return substr;
+    memcpy(ptr_at_sig, ptr_at_sig + sig_size, strlen(ptr_at_sig) - sig_size);
+    ftruncate(current_fd, current_stats.st_size - sig_size); // Меняем размер файла до нужного, т.е. сжимаем его до реаьного размера из которого исключена сигнатура
+    return;
 }
 
-char* seekpat(char *file)
+sigtype* sign_get()
 {
-    char *sign;
-    char *substr;
+    sigtype *signature = malloc(sizeof(sigtype));
 
-    while((sign = sign_get()) != NULL)
+    while(sign_get_sigfile_ptr[c_mark] != '[' && sign_get_sigfile_ptr[c_mark + 1] != '#') // Ищем открывающий тег
     {
-        substr = strstr(file, sign);
-        if (substr != NULL)
+        c_mark++;
+    }
+    char *line = sign_get_sigfile_ptr + c_mark;
+    for (int i = 0; i < _LITE_KNOWN_FILETYPES; i++)
+    {
+        char *result = strstr(line, sys_file_types[i]);
+        if (result != NULL)
         {
-            if (opt_bites ^ opt_active)
+            if (result[5] != 63 && result[6] != 63 && opt_bites & opt_debug)
             {
-                if(opt_bites & opt_debug)
-                printf("Processing file %s\n", file);
-                for (unsigned int i = 0; i < strlen(sign); i++)
-                    substr[i] = 'B';
+                printf("Wrong open tag in base signatures at c_mark %d", c_mark);
+                perror("Closing program!");
             }
-            return substr;
+            if (result[5] == '?')   // [#js#?5]
+            {
+                strcpy(signature->type, sys_file_types[i]);
+                c_mark += 5;
+                break;
+            }
+            else
+            {
+                strcpy(signature->type, sys_file_types[i]);
+                c_mark += 6;        // [#php#?5] Здесь '?' шестой по счёту, двигаемся сразу сюда.
+                break;
+            }
+        }
+        else
+        {
+            return NULL;
         }
     }
-    return NULL;
+    unsigned int i = 0;
+    while(sign_get_sigfile_ptr[c_mark] != ']') // Считываем размер [#php#?5]
+    {
+        if(sign_get_sigfile_ptr[c_mark] == '?')
+        {
+            c_mark++; // Пропускаем '?'
+            sign_get_sign_size[i] = sign_get_sigfile_ptr[c_mark]; // беда
+            i++;
+        }
+        c_mark++;
+    }
+    signature->size = atoi(sign_get_sign_size);
+    c_mark += 2; // Попадаем на ']' и перешагиваем его + перешагиваем пробел до сигнатуры (создан для удосбтва)
+
+    strncpy(signature->content, sign_get_sigfile_ptr + c_mark, signature->size);
+    signature->content[signature->size] = '\0'; // Обрезаем лишнюю память
+    return signature;
+}
+
+char* scanpat(char *file)
+{
+    char *substr = NULL;
+    char *lastfound = NULL;
+    c_mark = 0;
+    bool sign_found = false;
+    sigtype *signature;
+
+    while((signature = sign_get()) != NULL)
+    {
+        substr = strstr(file, signature->content);
+        if (substr != NULL)
+        {
+            lastfound = malloc(strlen(substr));
+            strcpy(lastfound, substr);
+            sign_found = true;
+            c_occur_overall++;
+            if (opt_bites & opt_active)
+                sign_rem(substr, signature->size);
+        }
+    }
+    if (lastfound == NULL && !sign_found) return NULL;
+    return lastfound;
 }
 
 void scan(fslist *list)
 {
-    struct stat stats;
-    int fd;
-
     for (unsigned int i = 0; i < list->f_size; i++)
     {
-        fd = open(list->files[i], O_RDWR);
-        if (fd < 0)
+        current_fd = open(list->files[i], O_RDWR);
+        if (current_fd < 0)
         {
             perror(strerror(errno));
         }
-        if (fstat(fd, &stats) == -1)
+        if (fstat(current_fd, &current_stats) == -1)
         {
             perror(strerror(errno));
         }
-        if(stats.st_size > 0)
+        if(current_stats.st_size > 0)
         {
-            char *fileptr = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            char *filebuf = mmap(0, current_stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, current_fd, 0);
 
-            if (fileptr == MAP_FAILED)
-            {
-                perror(strerror(errno));
-            }
-            /*
-            printf("Reading %s!\n", list->files[i]);
-            fflush(stdout);
-            */
-            char *result = seekpat(fileptr);
-
-            if (msync(fileptr, stats.st_size, MS_SYNC) == -1)
+            if (filebuf == MAP_FAILED)
             {
                 perror(strerror(errno));
             }
 
-            if (result != NULL)
+            char *result = scanpat(filebuf);
+
+            if (msync(filebuf, current_stats.st_size, MS_SYNC) == -1)
             {
-                if(opt_bites ^ opt_log)
+                perror(strerror(errno));
+            }
+
+            if (result)
+            {
+                c_occur_files++;
+                printf(mess_found_in_file, list->files[i]);
+                printf(mess_found_last_sig, result);
+                if(opt_bites & opt_active)
+                    printf(mess_found_neutralized);
+                if(opt_bites & opt_log)
                 {
-                    printf("Signature found in file: %s\n", list->files[i]);
-                    fflush(stdout);
+                    // Логирование в файл
                 }
             }
 
-            if (munmap(fileptr, stats.st_size) == -1)
+            if (munmap(filebuf, current_stats.st_size) == -1)
             {
                 perror(strerror(errno));
             }
-            if (close(fd) == -1)
+            if (close(current_fd) == -1)
             {
                 perror(strerror(errno));
             }
