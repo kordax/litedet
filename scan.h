@@ -16,6 +16,9 @@
 #include "preload.h"
 #include "walk.h"
 
+static int          current_fd;
+static struct stat  current_stats;
+
 typedef struct sigtype {
 
     char content[_LITE_MAX_SIGNSIZE + 1]; // +1 для '\0'
@@ -24,13 +27,11 @@ typedef struct sigtype {
 
 } sigtype;
 
-void* remchars(char *pointer_at_beg, unsigned int size)
+void sign_rem(char *ptr_at_sig, unsigned int sig_size)
 {
-    unsigned int i = 0;
-    while(pointer_at_beg[i] != '\0')
-    {
-        pointer_at_beg[i] = pointer_at_beg[size + 1];
-    }
+    memcpy(ptr_at_sig, ptr_at_sig + sig_size, strlen(ptr_at_sig) - sig_size);
+    ftruncate(current_fd, current_stats.st_size - sig_size); // Меняем размер файла до нужного, т.е. сжимаем его до реаьного размера из которого исключена сигнатура
+    return;
 }
 
 sigtype* sign_get()
@@ -64,7 +65,6 @@ sigtype* sign_get()
                 c_mark += 6;        // [#php#?5] Здесь '?' шестой по счёту, двигаемся сразу сюда.
                 break;
             }
-            //strcpy(signature->type, sys_file_types[i]);
         }
         else
         {
@@ -108,7 +108,7 @@ char* scanpat(char *file)
             sign_found = true;
             c_occur_overall++;
             if (opt_bites & opt_active)
-                remchars(substr, 8);
+                sign_rem(substr, signature->size);
         }
     }
     if (lastfound == NULL && !sign_found) return NULL;
@@ -117,23 +117,20 @@ char* scanpat(char *file)
 
 void scan(fslist *list)
 {
-    struct stat stats;
-    int fd;
-
     for (unsigned int i = 0; i < list->f_size; i++)
     {
-        fd = open(list->files[i], O_RDWR);
-        if (fd < 0)
+        current_fd = open(list->files[i], O_RDWR);
+        if (current_fd < 0)
         {
             perror(strerror(errno));
         }
-        if (fstat(fd, &stats) == -1)
+        if (fstat(current_fd, &current_stats) == -1)
         {
             perror(strerror(errno));
         }
-        if(stats.st_size > 0)
+        if(current_stats.st_size > 0)
         {
-            char *filebuf = mmap(0, stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+            char *filebuf = mmap(0, current_stats.st_size, PROT_READ | PROT_WRITE, MAP_SHARED, current_fd, 0);
 
             if (filebuf == MAP_FAILED)
             {
@@ -142,7 +139,7 @@ void scan(fslist *list)
 
             char *result = scanpat(filebuf);
 
-            if (msync(filebuf, stats.st_size, MS_SYNC) == -1)
+            if (msync(filebuf, current_stats.st_size, MS_SYNC) == -1)
             {
                 perror(strerror(errno));
             }
@@ -160,11 +157,11 @@ void scan(fslist *list)
                 }
             }
 
-            if (munmap(filebuf, stats.st_size) == -1)
+            if (munmap(filebuf, current_stats.st_size) == -1)
             {
                 perror(strerror(errno));
             }
-            if (close(fd) == -1)
+            if (close(current_fd) == -1)
             {
                 perror(strerror(errno));
             }
