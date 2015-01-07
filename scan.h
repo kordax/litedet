@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <dirent.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -12,84 +13,94 @@
 #include <limits.h>
 #include <errno.h>
 #include <error.h>
+#include "preload.h"
 #include "walk.h"
 
-static unsigned int c_mark          =   0;
-static unsigned int c_occur_files   =   0;
-static unsigned int c_occur_overall =   0;
+typedef struct sigtype {
 
-void* strrem(char *src, char *ptr)
+    char content[_LITE_MAX_SIGNSIZE + 1]; // +1 для '\0'
+    char type[5];
+    unsigned int size;
+
+} sigtype;
+
+void* remchars(char *pointer_at_beg, unsigned int size)
 {
-    void *vptr;
+    unsigned int i = 0;
+    while(pointer_at_beg[i] != '\0')
+    {
+        pointer_at_beg[i] = pointer_at_beg[size + 1];
+    }
 }
 
-char* sign_get()
+sigtype* sign_get()
 {
-    char *substr;
-    struct stat stats;
-    unsigned int signsize = 0;
-    char *sigfile = "/home/kordax/sign.txt";
-    int fd = open(sigfile, O_RDONLY);
-    if (fd < 0)
-    {
-        perror(strerror(errno));
-    }
-    if (fstat(fd, &stats) == -1)
-    {
-        perror(strerror(errno));
-    }
-    if (c_mark > stats.st_size)
-    {
-        return NULL;
-    }
+    sigtype *signature = malloc(sizeof(sigtype));
 
-    char *filebuf = (char *) malloc(stats.st_size);
-    char buf[_LITE_MAX_SIGNSIZE];
-    int i = 0;
-
-    if (read(fd, filebuf, stats.st_size) == -1)
+    while(sign_get_sigfile_ptr[c_mark] != '[' && sign_get_sigfile_ptr[c_mark + 1] != '#') // Ищем открывающий тег
     {
-        perror(strerror(errno));
+        c_mark++;
     }
-    if (stats.st_size < 4)
+    char *line = sign_get_sigfile_ptr + c_mark;
+    for (int i = 0; i < _LITE_KNOWN_FILETYPES; i++)
     {
-        perror("Signature base is less than 4 symbols!");
-    }
-    while((filebuf[c_mark] != '[' || filebuf[c_mark + 1] != '#' || filebuf[c_mark + 2] != ']' || filebuf[c_mark + 3] != ' ') && filebuf[c_mark + 3] != '\0')
-    {
-       c_mark++;
-    }
-    if(filebuf[c_mark + 3] == '\0')
-    {
-        return NULL;
-    }
-    if(filebuf[c_mark] == '[' && filebuf[c_mark + 1] == '#' && filebuf[c_mark + 2] == ']' && filebuf[c_mark + 3] == ' ')
-    {
-        c_mark += 4;
-        while(filebuf[c_mark] != ' ' && filebuf[c_mark + 1] != '$' && filebuf[c_mark + 2] != '#' && filebuf[c_mark + 3] != '>')
+        char *result = strstr(line, sys_file_types[i]);
+        if (result != NULL)
         {
-            buf[i] = filebuf[c_mark];
-            i++;
-            c_mark++;
-            signsize++;
+            if (result[5] != 63 && result[6] != 63 && opt_bites & opt_debug)
+            {
+                printf("Wrong open tag in base signatures at c_mark %d", c_mark);
+                perror("Closing program!");
+            }
+            if (result[5] == '?')   // [#js#?5]
+            {
+                strcpy(signature->type, sys_file_types[i]);
+                c_mark += 5;
+                break;
+            }
+            else
+            {
+                strcpy(signature->type, sys_file_types[i]);
+                c_mark += 6;        // [#php#?5] Здесь '?' шестой по счёту, двигаемся сразу сюда.
+                break;
+            }
+            //strcpy(signature->type, sys_file_types[i]);
+        }
+        else
+        {
+            return NULL;
         }
     }
-    substr = buf;
+    unsigned int i = 0;
+    while(sign_get_sigfile_ptr[c_mark] != ']') // Считываем размер [#php#?5]
+    {
+        if(sign_get_sigfile_ptr[c_mark] == '?')
+        {
+            c_mark++; // Пропускаем '?'
+            sign_get_sign_size[i] = sign_get_sigfile_ptr[c_mark]; // беда
+            i++;
+        }
+        c_mark++;
+    }
+    signature->size = atoi(sign_get_sign_size);
+    c_mark += 2; // Попадаем на ']' и перешагиваем его + перешагиваем пробел до сигнатуры (создан для удосбтва)
 
-    return substr;
+    strncpy(signature->content, sign_get_sigfile_ptr + c_mark, signature->size);
+    signature->content[signature->size] = '\0'; // Обрезаем лишнюю память
+    return signature;
 }
 
 char* scanpat(char *file)
 {
-    char *sign = NULL;
     char *substr = NULL;
     char *lastfound = NULL;
     c_mark = 0;
     bool sign_found = false;
+    sigtype *signature;
 
-    while((sign = sign_get()) != NULL)
+    while((signature = sign_get()) != NULL)
     {
-        substr = strstr(file, sign);
+        substr = strstr(file, signature->content);
         if (substr != NULL)
         {
             lastfound = malloc(strlen(substr));
@@ -97,8 +108,7 @@ char* scanpat(char *file)
             sign_found = true;
             c_occur_overall++;
             if (opt_bites & opt_active)
-                for (unsigned int i = 0; i < strlen(sign); i++)
-                    substr[i] = 'B';
+                remchars(substr, 8);
         }
     }
     if (lastfound == NULL && !sign_found) return NULL;

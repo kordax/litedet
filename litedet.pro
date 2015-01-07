@@ -12,7 +12,8 @@ HEADERS += \
     list.h \
     walk.h \
     scan.h \
-    const.h
+    const.h \
+    preload.h
 
 QMAKE_CFLAGS += -std=gnu11
 QMAKE_CFLAGS += -g

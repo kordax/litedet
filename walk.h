@@ -48,8 +48,6 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
                 node->type = "DIR";
                 strcat(temp, "/");
                 strcat(temp, entry->d_name);
-                //strcpy(node->path, temp);
-                //fs_pushback(list, node); //Добавляем в список наш файл
                 if(opt_bites & opt_debug)
                 printf("[DEBUG] { walk() } Opening dir entry %50s\n", temp);
                 walk(list, temp);

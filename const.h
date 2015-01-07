@@ -6,16 +6,27 @@
 */
 
 #define _LITE_MAX_FILES 10000
-#define _LITE_MAX_SIGNSIZE 16384
+#define _LITE_MAX_SIGNSIZE 200
 #define _LITE_TIMERNANOMTPL 1000000000
 #define _LITE_MAX_UNAMESIZE 6
 #define _LITE_OPTIONS 6 // Количество аргументов включая сокращённые.
+#define _LITE_KNOWN_FILETYPES 6
 
 /*
  * OPTION LIST:
 */
 
 enum arguments {help, active, log, extlog, debug, mono};
+
+char *sys_file_types[_LITE_KNOWN_FILETYPES] =
+{
+"#php#",
+"#js#",
+"#jpg#",
+"#gif#",
+"#png#",
+"#htm#"
+};
 
 char *arg_longarg_list[_LITE_OPTIONS] =
 {

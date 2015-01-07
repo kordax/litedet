@@ -50,6 +50,8 @@ char* get_real_path(char *user)
 
 int main(int argc, char *argv[])
 {
+    preload();
+
     // ======================= Обработка аргументов
     if(argc <= 1)
     {
