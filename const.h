@@ -96,6 +96,18 @@ static char *mess_arg_maybe =
 Возможно вы имели ввиду --%s и пропустили символы '-'?\n\
 Внимание: Все аргументы регистрозависимы.\n";
 
+static char *mess_found_in_file =
+"\
+Совпадение с базой сигнатур в файле: %50s\n";
+
+static char *mess_found_last_sig =
+"\
+↳ Пример последней найденной сигнатуры: %43.8s\n";
+
+static char *mess_found_neutralized =
+"\
+...Вредоносный код удалён.\n";
+
 static char *mess_found_files =
 "\
 Количество файлов c вредоносными вставками: %43d\n";

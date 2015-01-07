@@ -466,6 +466,7 @@ compiler_clean:
 
 main.o: ../main.c ../const.h \
 		../scan.h \
+		../preload.h \
 		../walk.h \
 		../list.h
 	$(CC) -c $(CFLAGS) $(INCPATH) -o main.o ../main.c

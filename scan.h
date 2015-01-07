@@ -147,10 +147,10 @@ void scan(fslist *list)
             if (result)
             {
                 c_occur_files++;
-                printf("Совпадение с базой сигнатур в файле: %50s\n", list->files[i]);
-                printf("    ↳ Пример последней найденной сигнатуры: %43.8s\n", result);
+                printf(mess_found_in_file, list->files[i]);
+                printf(mess_found_last_sig, result);
                 if(opt_bites & opt_active)
-                    printf("...Вредоносный код удалён.\n");
+                    printf(mess_found_neutralized);
                 if(opt_bites & opt_log)
                 {
                     // Логирование в файл
