@@ -133,7 +133,7 @@ void scan(fslist *list, unsigned int cnt, unsigned int max)
     {
         if (opt_bites & opt_debug)
         {
-            printf("Сканировую файл %s \n", list->files[cnt]);
+            printf("Сканирую файл %s \n", list->files[cnt]);
             fflush(stdout);
         }
         current_fd = open(list->files[cnt], O_RDWR);
