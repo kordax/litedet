@@ -33,28 +33,29 @@ fslist* fs_make()
 
 void fs_pushback(fslist *list, fsnode *node) // Добавляем ноду с уже правильным и полным путём
 {
-    int memsize = strlen(node->path);
 
     for (unsigned int i = 0; i < _LITE_MAX_FILES; i++) // Если это папка или файл, добавляем путь в массив списка
     {
         if(strcmp(node->type, "DIR") == 0)
         if(list->dirs[i] == NULL)
         {
-            list->dirs[i] = (char*) malloc(_LITE_MAX_FILES);
+            list->dirs[i] = (char*) malloc(_POSIX_PATH_MAX);
             //list->dirs[i] = tmp->path; //0.0008144
-            memcpy(list->dirs[i], node->path, memsize); //0.0008882
+            strcpy(list->dirs[i], node->path);
             list->d_size++;
             break;
         }
         if(strcmp(node->type, "FIL") == 0)
         if(list->files[i] == NULL)
         {
-            list->files[i] = (char*) malloc(_LITE_MAX_FILES);
+            list->files[i] = (char*) malloc(_POSIX_PATH_MAX);
             //list->files[i] = tmp->path;
-            memcpy(list->files[i], node->path, memsize);
+            strcpy(list->files[i], node->path);
             list->f_size++;
             break;
         }
     }
+
+    list->size = list->f_size + list->d_size;
 }
 #endif // LIST_H
