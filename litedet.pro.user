@@ -1,30 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<!-- Written by QtCreator 3.3.0, 2015-01-02T21:40:15. -->
-=======
-<<<<<<< HEAD
-<!-- Written by QtCreator 3.2.82, 2014-12-15T10:54:55. -->
-=======
-<!-- Written by QtCreator 3.3.0, 2014-12-21T19:49:05. -->
->>>>>>> 4a45061c06b7e2a7455a5e31cf39e9757aa96f4b
->>>>>>> 266e8d11499363f1f82c7db8a09f8dc4bf4192a2
-=======
-<!-- Written by QtCreator 3.3.0, 2015-01-03T03:20:15. -->
->>>>>>> dev
-=======
-<!-- Written by QtCreator 3.3.0, 2015-01-07T20:57:52. -->
->>>>>>> test
-=======
-<!-- Written by QtCreator 3.3.0, 2015-01-11T05:52:11. -->
->>>>>>> test
+<!-- Written by QtCreator 3.3.0, 2015-01-12T00:51:37. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{fd333081-200b-400f-ad85-a31819238d07}</value>
+  <value type="QByteArray">{3f475a06-4a63-4e52-98b7-a9d28d117631}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -96,7 +76,7 @@
       <value type="bool" key="QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto">true</value>
       <value type="QString" key="QtProjectManager.QMakeBuildStep.QMakeArguments"></value>
       <value type="bool" key="QtProjectManager.QMakeBuildStep.QMakeForced">false</value>
-      <value type="bool" key="QtProjectManager.QMakeBuildStep.UseqtQuickCompiler">false</value>
+      <value type="bool" key="QtProjectManager.QMakeBuildStep.UseQtQuickCompiler">false</value>
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.1">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -156,7 +136,7 @@
       <value type="bool" key="QtProjectManager.QMakeBuildStep.LinkQmlDebuggingLibraryAuto">true</value>
       <value type="QString" key="QtProjectManager.QMakeBuildStep.QMakeArguments"></value>
       <value type="bool" key="QtProjectManager.QMakeBuildStep.QMakeForced">false</value>
-      <value type="bool" key="QtProjectManager.QMakeBuildStep.UseqtQuickCompiler">false</value>
+      <value type="bool" key="QtProjectManager.QMakeBuildStep.UseQtQuickCompiler">false</value>
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.1">
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
@@ -259,7 +239,7 @@
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DefaultDisplayName">litedet</value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt4ProjectManager.Qt4RunConfiguration:/home/kordax/Projects/litedet/litedet.pro</value>
-    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments">kordax -d</value>
+    <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.CommandLineArguments">kordax -m</value>
     <value type="QString" key="Qt4ProjectManager.Qt4RunConfiguration.ProFile">litedet.pro</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseDyldImageSuffix">false</value>
     <value type="bool" key="Qt4ProjectManager.Qt4RunConfiguration.UseTerminal">true</value>
