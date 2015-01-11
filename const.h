@@ -1,14 +1,37 @@
 #ifndef OPTIONS_H
 #define OPTIONS_H
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+#include <sys/resource.h>
+#include <limits.h>
+
+/*
+ * CONFIG:
+*/
+
+#define _LITE_SYS_FORKS 3
+
+/*
+ * SYSTEM LIMITS:
+*/
+
+#define _LITE_MAX_FILES 10000
+#define _LITE_MAX_SIGNSIZE 6
+#define _LITE_MAX_UNAMESIZE 6
+#define _LITE_MAX_FOUND_PRINT 6
+
+#define _LITE_SYS_MEMORY_LIMIT 128 * 1024 * 1024 // МБ
+
+static struct rlimit memlimit = {_LITE_SYS_MEMORY_LIMIT, _LITE_SYS_MEMORY_LIMIT};
+
 /*
  * DEFINES:
 */
 
-#define _LITE_MAX_FILES 10000
-#define _LITE_MAX_SIGNSIZE 200
 #define _LITE_TIMERNANOMTPL 1000000000
-#define _LITE_MAX_UNAMESIZE 6
 #define _LITE_OPTIONS 6 // Количество аргументов включая сокращённые.
 #define _LITE_KNOWN_FILETYPES 6
 
@@ -30,22 +53,22 @@ char *sys_file_types[_LITE_KNOWN_FILETYPES] =
 
 char *arg_longarg_list[_LITE_OPTIONS] =
 {
-"--help",           // 0
-"--active",         // 1
-"--log",            // 2
-"--extlog",         // 3
-"--debug",          // 4
-"--mono"            // 5
+"help",           // 0
+"active",         // 1
+"log",            // 2
+"extlog",         // 3
+"debug",          // 4
+"mono"            // 5
 };
 
 char *arg_shortarg_list[_LITE_OPTIONS] =
 {
-"-h",
-"-a",
-"-l",
-"-L",
-"-d",
-"-m"
+"h",
+"a",
+"l",
+"L",
+"d",
+"m"
 };
 
 static char *mess_arg_list =
@@ -98,11 +121,11 @@ static char *mess_arg_maybe =
 
 static char *mess_found_in_file =
 "\
-Совпадение с базой сигнатур в файле: %50s\n";
+Совпадение с базой сигнатур в файле: %62s\n";
 
 static char *mess_found_last_sig =
 "\
-↳ Пример последней найденной сигнатуры: %43.8s\n";
+↳ Количество совпадений: %d, пример последней найденной сигнатуры: %33.8s\n";
 
 static char *mess_found_neutralized =
 "\
@@ -110,14 +133,14 @@ static char *mess_found_neutralized =
 
 static char *mess_found_files =
 "\
-Количество файлов c вредоносными вставками: %43d\n";
+Количество файлов c вредоносными вставками: %55d\n";
 
 static char *mess_found_overall =
 "\
-Количество вредоносных вставок:             %43d\n";
+Количество вредоносных вставок:             %55d\n";
 
 /*
- * CONFIG:
+ * STATIC:
 */
 
 #endif // OPTIONS_H

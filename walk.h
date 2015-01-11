@@ -30,27 +30,31 @@ void walk(fslist* list, char *root) // Функцию буду запускат�
     while ((entry = readdir(cur_dir_ptr)) != NULL)
     {
         if(errno == EBADF) perror(strerror(EBADF));
-        char temp[_POSIX_PATH_MAX] = {0};
-        strcpy(temp, root);
+        char walk_cur_root[_POSIX_PATH_MAX] = {0};
+        strcpy(walk_cur_root, root);
         if(entry->d_name[0] != 46)
         {
             if(entry->d_type == DT_REG) // Обрабатываем файл
             {
                 node->type = "FIL";
-                strcat(temp, "/");
-                strcpy(node->path, strcat(temp, entry->d_name));
+                strcat(walk_cur_root, "/");
+                strcpy(node->path, strcat(walk_cur_root, entry->d_name));
                 fs_pushback(list, node); //Добавляем в список наш файл
                 if(opt_bites & opt_debug)
-                printf("[DEBUG] { walk() } Pushing file entry %49s\n", node->path);
+                {
+                    printf("[PARENT] {DEBUG} Caller: walk() - Pushing file entry %49s\n", node->path);
+                }
             }
             if(entry->d_type == DT_DIR) // Обрабатываем директорию
             {
                 node->type = "DIR";
-                strcat(temp, "/");
-                strcat(temp, entry->d_name);
+                strcat(walk_cur_root, "/");
+                strcat(walk_cur_root, entry->d_name);
                 if(opt_bites & opt_debug)
-                printf("[DEBUG] { walk() } Opening dir entry %50s\n", temp);
-                walk(list, temp);
+                {
+                    printf("[PARENT] {DEBUG} Caller: walk() - Opening dir entry %50s\n", walk_cur_root);
+                }
+                walk(list, walk_cur_root);
             }
         }
     }

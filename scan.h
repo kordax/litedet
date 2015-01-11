@@ -27,7 +27,24 @@ typedef struct sigtype {
 
 } sigtype;
 
-void sign_rem(char *ptr_at_sig, unsigned int sig_size)
+void scan_log(char *file)
+{
+    strcpy(mess_scan_found, mess_found_in_file);
+    strcat(mess_scan_found, mess_found_last_sig);
+
+    if (opt_bites ^ opt_log)
+    {
+        printf(mess_scan_found, file, c_occur_current, scan_lastfound);
+        if (opt_bites & opt_active)
+            printf(mess_found_neutralized);
+        if (opt_bites & opt_log)
+        {
+            // Логирование в файл
+        }
+    }
+}
+
+void sign_rem(char *ptr_at_sig, unsigned int sig_size) // Затратные операции!
 {
     memcpy(ptr_at_sig, ptr_at_sig + sig_size, strlen(ptr_at_sig) - sig_size);
     ftruncate(current_fd, current_stats.st_size - sig_size); // Меняем размер файла до нужного, т.е. сжимаем его до реаьного размера из которого исключена сигнатура
@@ -72,9 +89,9 @@ sigtype* sign_get()
         }
     }
     unsigned int i = 0;
-    while(sign_get_sigfile_ptr[c_mark] != ']') // Считываем размер [#php#?5]
+    while (sign_get_sigfile_ptr[c_mark] != ']') // Считываем размер [#php#?5]
     {
-        if(sign_get_sigfile_ptr[c_mark] == '?')
+        if (sign_get_sigfile_ptr[c_mark] == '?')
         {
             c_mark++; // Пропускаем '?'
             sign_get_sign_size[i] = sign_get_sigfile_ptr[c_mark]; // беда
@@ -92,34 +109,34 @@ sigtype* sign_get()
 
 char* scanpat(char *file)
 {
-    char *substr = NULL;
-    char *lastfound = NULL;
     c_mark = 0;
-    bool sign_found = false;
     sigtype *signature;
 
     while((signature = sign_get()) != NULL)
     {
-        substr = strstr(file, signature->content);
-        if (substr != NULL)
+        scan_lastfound = strstr(file, signature->content);
+        if (scan_lastfound != NULL)
         {
-            lastfound = malloc(strlen(substr));
-            strcpy(lastfound, substr);
-            sign_found = true;
+            c_occur_current++;
             c_occur_overall++;
             if (opt_bites & opt_active)
-                sign_rem(substr, signature->size);
+                sign_rem(scan_lastfound, signature->size);
         }
     }
-    if (lastfound == NULL && !sign_found) return NULL;
-    return lastfound;
+    if (scan_lastfound != NULL) return scan_lastfound;
+    return NULL;
 }
 
-void scan(fslist *list)
+void scan(fslist *list, unsigned int cnt, unsigned int max)
 {
-    for (unsigned int i = 0; i < list->f_size; i++)
+    while (cnt <= max)
     {
-        current_fd = open(list->files[i], O_RDWR);
+        if (opt_bites & opt_debug)
+        {
+            printf("Сканирую файл %s \n", list->files[cnt]);
+            fflush(stdout);
+        }
+        current_fd = open(list->files[cnt], O_RDWR);
         if (current_fd < 0)
         {
             perror(strerror(errno));
@@ -147,14 +164,8 @@ void scan(fslist *list)
             if (result)
             {
                 c_occur_files++;
-                printf(mess_found_in_file, list->files[i]);
-                printf(mess_found_last_sig, result);
-                if(opt_bites & opt_active)
-                    printf(mess_found_neutralized);
-                if(opt_bites & opt_log)
-                {
-                    // Логирование в файл
-                }
+                scan_log(list->files[cnt]);
+                c_occur_current = 0;
             }
 
             if (munmap(filebuf, current_stats.st_size) == -1)
@@ -166,6 +177,7 @@ void scan(fslist *list)
                 perror(strerror(errno));
             }
         }
+        cnt++;
     }
 }
 #endif // SCAN
