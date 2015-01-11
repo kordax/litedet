@@ -251,7 +251,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        scan(list, 0, list->size);
+        scan(list, 0, list->f_size - 1);
     }
 
     if (pid == 0)
